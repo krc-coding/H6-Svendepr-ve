@@ -1,7 +1,7 @@
-# Project Case: El Business Project Management App
+# Project Case: Project Management App
 
 ## Project Title  
-**El Business – Project Management App for Electricians**
+**Project Management App**
 
 ## Project Description  
 The El Business Project Management App is a digital solution tailored specifically for electricians and project managers within the electrical industry. The app aims to streamline the way electrical technicians and management teams handle ongoing and upcoming projects by providing a clear, user-friendly interface for task delegation, tracking, and communication.
@@ -10,14 +10,17 @@ The El Business Project Management App is a digital solution tailored specifical
 The objective of this project is to design and develop a flexible and scalable project management platform that meets the specific workflow needs of El technicians. The goal is to enhance productivity, improve project transparency, and support seamless collaboration between team members and management.
 
 ## Target Users  
-- **El technicians:** who need a simple way to view and manage their own tasks, as well as stay updated on their colleagues’ progress.  
+- **Technicians:** who need a simple way to view and manage their own tasks, as well as stay updated on their colleagues’ progress.  
 - **Project managers and supervisors:** who require a clear overview of all ongoing and future projects, team assignments, and task statuses.
 
 ## Key Features  
 - **Task Management:**  
   Create, assign, and manage tasks with due dates, priorities, and status updates.
 
-- **User Overview:**  
+- **Project Management:**  
+  Create, assign, and manage projects with due dates, priorities, and status updates.
+
+- **Management Overview:**  
   Managers can see who is working on what, which tasks are pending, in progress, or completed.
 
 - **Personal Dashboard:**  
@@ -33,11 +36,13 @@ The objective of this project is to design and develop a flexible and scalable p
 By delivering a specialized tool for electricians and project managers, this app aims to replace scattered, manual systems (like whiteboards, spreadsheets, or messaging apps) with a centralized platform designed for their specific industry needs.
 
 ## Milestones  
-- PoC  
-Simple project board where you can manage all projects.
+- PoC (Proof of concept)  
+    - Simple project board where you can manage all projects.
 
-- MVP  
-User management and personalized dashboards.
+- MVP (Minimal viable product)  
+    - User management and personalized dashboards.
 
-- MLP  
-Modular addon system, where the app can grow into a broader business tool—offering features like inventory tracking, timesheets, client communication, or safety checklists.
+- MLP (Minimal loveable product)  
+    - Modular addon system, where the app can grow into a broader business tool—offering features like inventory tracking, timesheets, client communication, or safety checklists.
+    - Setup to configure tasks as blocking other tasks.
+    - Warn users if projects/tasks are approaching due date. 
