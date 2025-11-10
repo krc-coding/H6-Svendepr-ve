@@ -69,6 +69,80 @@ Small mermaid diagrams of the system setup.
 
 Small mermaid diagrams of the database setup.
 
+```mermaid
+erDiagram
+    users {
+        id BIGINT PK
+        name VARCHAR(255)
+        email VARCHAR(255)
+        email_verified_at TIMESTAMP
+        password VARCHAR(255)
+        display_name VARCHAR(255)
+        role ENUM
+        remember_token VARCHAR(100)
+        created_at TIMESTAMP
+        updated_at TIMESTAMP
+    }
+
+    projects {
+        id BIGINT PK
+        name VARCHAR(255)
+        description TEXT
+        status ENUM
+        project_lead_id BIGINT FK
+        due_date DATE
+        created_at TIMESTAMP
+        updated_at TIMESTAMP
+    }
+
+    tasks {
+        id BIGINT PK
+        title VARCHAR(255)
+        description TEXT
+        status ENUM
+        priority ENUM
+        project_id BIGINT FK
+        created_by_id BIGINT FK
+        due_date DATE
+        created_at TIMESTAMP
+        updated_at TIMESTAMP
+    }
+
+    task_user {
+        id BIGINT PK
+        task_id BIGINT FK
+        user_id BIGINT FK
+        created_at TIMESTAMP
+        updated_at TIMESTAMP
+    }
+
+    project_user {
+        id BIGINT PK
+        project_id BIGINT FK
+        user_id BIGINT FK
+        created_at TIMESTAMP
+        updated_at TIMESTAMP
+    }
+
+    task_dependencies {
+        id BIGINT PK
+        task_id BIGINT FK
+        depends_on_task_id BIGINT FK
+        created_at TIMESTAMP
+        updated_at TIMESTAMP
+    }
+
+    users ||--o{ projects: "project_lead"
+    users ||--o{ tasks: "created_by"
+    users ||--o{ task_user: "assigned_to"
+    users ||--o{ project_user: "worked_on"
+    projects ||--o{ tasks: "contains"
+    projects ||--o{ project_user: "has_workers"
+    tasks ||--o{ task_user: "assigned_to_users"
+    tasks ||--o{ task_dependencies: "blocks"
+    tasks ||--o{ task_dependencies: "blocked_by"
+```
+
 ---
 
 # Tech stack
