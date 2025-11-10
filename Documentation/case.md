@@ -63,4 +63,5 @@ industry needs.
     - Modular addon system, where the app can grow into a broader business tool—offering features like inventory
       tracking, timesheets, client communication, or safety checklists.
     - Setup to configure tasks as blocking other tasks.
-    - Warn users if projects/tasks are approaching due date. 
+    - Warn users if projects/tasks are approaching due date.
+  
