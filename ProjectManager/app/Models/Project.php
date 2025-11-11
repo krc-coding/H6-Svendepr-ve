@@ -1,0 +1,33 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+
+class Project extends Model
+{
+    // Custom enum
+    public const STATUS_OPEN = "Open";
+    public const STATUS_IN_PROCESS = 'In process';
+    public const STATUS_COMPLETED = 'Completed';
+    public const STATUS_CANCELLED = 'Cancelled';
+    // Custom enum end
+
+    protected $fillable = [
+        'name',
+        'description',
+        'status',
+        'project_lead_id',
+        'due_date'
+    ];
+
+    public static function getStatuses(): array
+    {
+        return [
+            self::STATUS_OPEN,
+            self::STATUS_IN_PROCESS,
+            self::STATUS_COMPLETED,
+            self::STATUS_CANCELLED,
+        ];
+    }
+}
