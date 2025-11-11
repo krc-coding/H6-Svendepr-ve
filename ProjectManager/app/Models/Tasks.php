@@ -1,0 +1,48 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+
+class Tasks extends Model
+{
+    // Custom enum
+    public const STATUS_OPEN = "Open";
+    public const STATUS_IN_PROCESS = 'In process';
+    public const STATUS_COMPLETED = 'Completed';
+    public const STATUS_CANCELLED = 'Cancelled';
+    public const STATUS_BLOCKED = 'Blocked';
+    // Custom enum end
+
+    protected $fillable = [
+        'title',
+        'description',
+        'status',
+        'project_id',
+        'created_by',
+        'due_date'
+    ];
+
+    public static function getStatuses(): array
+    {
+        return [
+            self::STATUS_OPEN,
+            self::STATUS_IN_PROCESS,
+            self::STATUS_COMPLETED,
+            self::STATUS_CANCELLED,
+            self::STATUS_BLOCKED,
+        ];
+    }
+
+    // Project doesn't exit, but we need this...
+    // public function project(): BelongsTo
+    // {
+    //     return $this->belongsTo(user::class);
+    // }
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(user::class);
+    }
+}
