@@ -3,24 +3,23 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class Tasks extends Model
+class Project extends Model
 {
     // Custom enum
     public const STATUS_OPEN = "Open";
     public const STATUS_IN_PROCESS = 'In process';
     public const STATUS_COMPLETED = 'Completed';
     public const STATUS_CANCELLED = 'Cancelled';
-    public const STATUS_BLOCKED = 'Blocked';
     // Custom enum end
 
     protected $fillable = [
-        'title',
+        'name',
         'description',
         'status',
-        'project_id',
-        'created_by',
+        'project_lead_id',
         'due_date'
     ];
 
@@ -31,13 +30,12 @@ class Tasks extends Model
             self::STATUS_IN_PROCESS,
             self::STATUS_COMPLETED,
             self::STATUS_CANCELLED,
-            self::STATUS_BLOCKED,
         ];
     }
 
-    public function project(): BelongsTo
+    public function tasks(): HasMany
     {
-        return $this->belongsTo(Project::class);
+        return $this->hasMany(Tasks::class, 'device_id');
     }
 
     public function user(): BelongsTo
