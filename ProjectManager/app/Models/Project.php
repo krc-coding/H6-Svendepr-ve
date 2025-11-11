@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Project extends Model
 {
@@ -29,5 +31,15 @@ class Project extends Model
             self::STATUS_COMPLETED,
             self::STATUS_CANCELLED,
         ];
+    }
+
+    public function tasks(): HasMany
+    {
+        return $this->hasMany(Tasks::class, 'device_id');
+    }
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(user::class);
     }
 }

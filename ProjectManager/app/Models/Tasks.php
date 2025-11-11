@@ -35,11 +35,10 @@ class Tasks extends Model
         ];
     }
 
-    // Project doesn't exit, but we need this...
-    // public function project(): BelongsTo
-    // {
-    //     return $this->belongsTo(user::class);
-    // }
+    public function project(): BelongsTo
+    {
+        return $this->belongsTo(Project::class);
+    }
 
     public function user(): BelongsTo
     {
