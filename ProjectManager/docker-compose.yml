@@ -1,0 +1,41 @@
+services:
+  laravel:
+    container_name: ProjectManager-server
+    build:
+      context: ./docker/8.3
+      dockerfile: Dockerfile
+      args:
+        WWWGROUP: '${WWWGROUP}'
+        WWWUSER: '${WWWUSER}'
+    ports:
+      - "80:80"
+    volumes:
+      - .:/var/www/html
+
+    networks:
+      - h6-network
+    depends_on:
+      - database
+
+  database:
+    container_name: ProjectManager-database
+    image: 'mysql:lts'
+    ports:
+      - '${FORWARD_DB_PORT:-3306}:${DB_PORT}'
+    environment:
+      MYSQL_ROOT_PASSWORD: '${DB_PASSWORD}'
+      MYSQL_DATABASE: '${DB_DATABASE}'
+      MYSQL_USER: '${DB_USERNAME}'
+      MYSQL_PASSWORD: '${DB_PASSWORD}'
+      MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
+    networks:
+      - h6-network
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-p${DB_PASSWORD}" ]
+      retries: 3
+      timeout: 5s
+
+networks:
+  h6-network:
+    name: h6-network
+    driver: bridge
