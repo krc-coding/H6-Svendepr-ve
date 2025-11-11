@@ -8,6 +8,15 @@ use Illuminate\Http\Request;
 
 class TaskController extends Controller
 {
+    public function getAllTasks()
+    {
+        return Tasks::all()->mapInto(TaskResource::class);
+    }
+
+    public function getTask(Tasks $task)
+    {
+        return new TaskResource($task);
+    }
 
     public function createTask(Request $request)
     {
@@ -32,5 +41,39 @@ class TaskController extends Controller
         ]);
 
         return new TaskResource($task);
+    }
+
+    public function editTask(Request $request, Tasks $task)
+    {
+        $request->validate([
+            'title' => 'required | string | max: 255',
+            'description' => 'required | string',
+            'due_date' => 'required | date | after_or_equal: today',
+        ]);
+
+        $task->title = $request->title;
+        $task->description = $request->description;
+        $task->due_date = $request->due_date;
+        $task->save();
+
+        return new TaskResource($task);
+    }
+
+    public function updateStatus(Request $request, Tasks $task)
+    {
+        $request->validate([
+            'status' => 'required|in:' . implode(',', Tasks::getStatuses()),
+        ]);
+
+        $task->status = $request->status;
+        $task->save();
+
+        return new TaskResource($task);
+    }
+
+    public function delete(Tasks $task)
+    {
+        $task->delete();
+        return response()->json([], 204);
     }
 }

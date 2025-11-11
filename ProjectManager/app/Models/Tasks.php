@@ -10,8 +10,8 @@ class Tasks extends Model
     // Custom enum
     public const STATUS_OPEN = "Open";
     public const STATUS_IN_PROCESS = 'In process';
-    public const STATUS_COMPLETED = 'completed';
-    public const STATUS_CANCELLED = 'cancelled';
+    public const STATUS_COMPLETED = 'Completed';
+    public const STATUS_CANCELLED = 'Cancelled';
     public const STATUS_BLOCKED = 'Blocked';
     // Custom enum end
 
@@ -34,7 +34,7 @@ class Tasks extends Model
             self::STATUS_BLOCKED,
         ];
     }
-    
+
     // Project doesn't exit, but we need this...
     // public function project(): BelongsTo
     // {
