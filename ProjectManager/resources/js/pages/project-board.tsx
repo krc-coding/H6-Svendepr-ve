@@ -1,8 +1,9 @@
-import { useState, useEffect } from 'react';
-import { Head } from '@inertiajs/react';
-import { ProjectBoard } from '@/components/project/base-project';
-import { ITask, IProject, TASK_STATUS, PROJECT_STATUS } from '@/types/types';
+import {useState, useEffect} from 'react';
+import {Head} from '@inertiajs/react';
+import {ProjectBoard} from '@/components/project/base-project';
+import {ITask, IProject, TASK_STATUS, PROJECT_STATUS} from '@/types/types';
 import {apiManager} from '@/lib/api-manager';
+import AppLayout from "@/layouts/app-layout";
 
 export default function ProjectBoardPage() {
     const [tasks, setTasks] = useState<ITask[]>([]);
@@ -59,7 +60,7 @@ export default function ProjectBoardPage() {
 
             setTasks(prevTasks =>
                 prevTasks.map(task =>
-                    task.id === taskId ? { ...task, status: newStatus as any } : task
+                    task.id === taskId ? {...task, status: newStatus as any} : task
                 )
             );
         } catch (err: any) {
@@ -74,7 +75,7 @@ export default function ProjectBoardPage() {
 
             setProjects(prevProjects =>
                 prevProjects.map(project =>
-                    project.id === projectId ? { ...project, status: newStatus as any } : project
+                    project.id === projectId ? {...project, status: newStatus as any} : project
                 )
             );
         } catch (err: any) {
@@ -85,11 +86,11 @@ export default function ProjectBoardPage() {
 
     if (loading) {
         return (
-            <>
-                <Head title="Project Board" />
+            <AppLayout>
+                <Head title="Project Board"/>
 
-                <div className="min-h-screen bg-gray-50">
-                    <header className="bg-white shadow-sm border-b">
+                <div className="min-h-screen" style={{backgroundColor: '#212830'}}>
+                    <header className="shadow-sm border-b">
                         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
                             <h1 className="text-2xl font-bold text-gray-900">Project Board</h1>
                             <p className="text-gray-600 mt-1">
@@ -105,17 +106,17 @@ export default function ProjectBoardPage() {
                         </div>
                     </div>
                 </div>
-            </>
+            </AppLayout>
         );
     }
 
     if (error) {
         return (
-            <>
-                <Head title="Project Board" />
+            <AppLayout>
+                <Head title="Project Board"/>
 
-                <div className="min-h-screen bg-gray-50">
-                    <header className="bg-white shadow-sm border-b">
+                <div className="min-h-screen" style={{backgroundColor: '#212830'}}>
+                    <header className="shadow-sm border-b">
                         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
                             <h1 className="text-2xl font-bold text-gray-900">Project Board</h1>
                             <p className="text-gray-600 mt-1">
@@ -125,65 +126,30 @@ export default function ProjectBoardPage() {
                     </header>
 
                     <div className="flex items-center justify-center min-h-96">
-                        <div className="bg-red-50 border border-red-200 rounded-lg p-6 max-w-md">
+                        <div className="border border-red-200 rounded-lg p-6 max-w-md">
                             <h3 className="text-lg font-semibold text-red-800 mb-2">Error Loading Data</h3>
                             <p className="text-red-600 mb-4">{error}</p>
                             <button
                                 onClick={() => window.location.reload()}
-                                className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition-colors"
+                                className="text-white px-4 py-2 rounded-md hover:bg-red-700 transition-colors"
                             >
                                 Try Again
                             </button>
                         </div>
                     </div>
                 </div>
-            </>
+            </AppLayout>
         );
     }
 
-    const getStatusSummary = () => {
-        const tasksByStatus = Object.values(TASK_STATUS).reduce((acc, status) => {
-            acc[status] = tasks.filter(task => task.status === status).length;
-            return acc;
-        }, {} as Record<string, number>);
-
-        const projectsByStatus = Object.values(PROJECT_STATUS).reduce((acc, status) => {
-            acc[status] = projects.filter(project => project.status === status).length;
-            return acc;
-        }, {} as Record<string, number>);
-
-        return { tasksByStatus, projectsByStatus };
-    };
-
-    const { tasksByStatus, projectsByStatus } = getStatusSummary();
-
     return (
-        <>
-            <Head title="Project Board" />
-
-            <div className="min-h-screen bg-gray-50">
-                <header className="bg-white shadow-sm border-b">
+        <AppLayout>
+            <Head title="Project Board"/>
+            <div className="min-h-screen" style={{backgroundColor: '#212830'}}>
+                <header className="shadow-sm border-b">
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-                        <div className="flex justify-between items-center">
-                            <div>
-                                <h1 className="text-2xl font-bold text-gray-900">Project Board</h1>
-                                <p className="text-gray-600 mt-1">
-                                    Manage your projects and tasks with this Kanban-style board
-                                </p>
-                            </div>
-                            <div className="flex flex-col items-end space-y-2">
-                                <div className="flex space-x-2">
-                                    <span className="bg-purple-100 text-purple-800 px-2 py-1 rounded text-sm">
-                                        {projects.length} Projects
-                                    </span>
-                                    <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm">
-                                        {tasks.length} Tasks
-                                    </span>
-                                </div>
-                                <div className="text-xs text-gray-500">
-                                    Blocked: {tasksByStatus.Blocked || 0} tasks
-                                </div>
-                            </div>
+                        <div>
+                            <h1 className="text-2xl font-bold">Project Board</h1>
                         </div>
                     </div>
                 </header>
@@ -195,6 +161,6 @@ export default function ProjectBoardPage() {
                     onProjectStatusUpdate={handleProjectStatusUpdate}
                 />
             </div>
-        </>
+        </AppLayout>
     );
 }
