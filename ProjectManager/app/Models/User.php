@@ -14,6 +14,12 @@ class User extends Authenticatable
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable, TwoFactorAuthenticatable;
 
+    // Custom enum
+    public const ROLE_USER = "User";
+    public const ROLE_ADMIN = 'Admin';
+    public const ROLE_PROJECT_MANAGER = 'Project manager';
+    // Custom enum end
+
     /**
      * The attributes that are mass assignable.
      *
@@ -21,7 +27,9 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'name',
+        'display_name',
         'email',
+        'role',
         'password',
     ];
 
@@ -48,6 +56,15 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'two_factor_confirmed_at' => 'datetime',
+        ];
+    }
+
+    public static function getRoles(): array
+    {
+        return [
+            self::ROLE_USER,
+            self::ROLE_ADMIN,
+            self::ROLE_PROJECT_MANAGER,
         ];
     }
 
