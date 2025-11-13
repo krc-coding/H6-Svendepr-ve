@@ -33,7 +33,8 @@ class ProjectController extends Controller
             'description' => $request->description,
             'status' => $request->status,
             'project_lead_id' => $request->project_lead_id,
-            'due_date' => $request->due_date
+            'due_date' => $request->due_date,
+            'account_id' => $request->user()->account_id
         ]);
 
         return new ProjectResource($project);

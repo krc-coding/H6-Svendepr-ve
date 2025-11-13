@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
+use App\Models\Scopes\AccountScope;
+use Illuminate\Database\Eloquent\Attributes\ScopedBy;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+#[ScopedBy(AccountScope::class)]
 class Project extends Model
 {
     // Custom enum
@@ -20,7 +23,8 @@ class Project extends Model
         'description',
         'status',
         'project_lead_id',
-        'due_date'
+        'due_date',
+        'account_id'
     ];
 
     public static function getStatuses(): array
@@ -41,5 +45,10 @@ class Project extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(user::class);
+    }
+
+    public function account(): BelongsTo
+    {
+        return $this->belongsTo(Account::class);
     }
 }

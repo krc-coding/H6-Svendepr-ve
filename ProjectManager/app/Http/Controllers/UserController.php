@@ -41,6 +41,7 @@ class UserController extends Controller
             'email' => $request->email,
             'role' => $request->role,
             'password' => Hash::make($request->password),
+            'account_id' => $request->user()->account_id
         ]);
 
         return new UserResource($user);
