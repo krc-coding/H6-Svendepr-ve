@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { apiManager } from '@/lib/api-manager';
 import { IUser } from '@/types/types';
 import { Head } from '@inertiajs/react';
+import { Button } from "@/components/ui/button";
 import UserCard from '@/components/user-management/user-card';
 import AppLayout from '@/layouts/app-layout';
 
@@ -30,6 +31,10 @@ export default function UserManagementPage() {
 
         fetchData();
     }, []);
+
+    const OpenCreateUser = () => {
+        console.log("Wanting to create new user!");
+    }
 
     if (error) {
         return (
@@ -84,8 +89,14 @@ export default function UserManagementPage() {
             <div className="min-h-screen p-2" style={{ backgroundColor: '#212830' }}>
                 <header className="shadow-sm border-b">
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-                        <div>
+                        <div className="flex items-center justify-between">
                             <h1 className="text-2xl font-bold">User management</h1>
+                            <Button
+                                className="bg-green-500 hover:bg-green-600"
+                                onClick={OpenCreateUser}
+                            >
+                                Create new user
+                            </Button>
                         </div>
                     </div>
                 </header>

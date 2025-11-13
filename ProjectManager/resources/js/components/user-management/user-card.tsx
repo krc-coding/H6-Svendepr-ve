@@ -1,7 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { IUser } from '@/types/types';
-import { Button } from "../ui/button";
+import { Button } from "@/components/ui/button";
 
 interface UserProps {
     user: IUser;
