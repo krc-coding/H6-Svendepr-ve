@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import UserCard from '@/components/user-management/user-card';
 import UserEditModal from '@/components/user-management/user-edit'
 import UserConfirmDeleteModal from '@/components/user-management/user-confirm-delete'
+import UserCreateModal from '@/components/user-management/user-create';
 import AppLayout from '@/layouts/app-layout';
 
 export default function UserManagementPage() {
@@ -15,6 +16,7 @@ export default function UserManagementPage() {
     const [selectedUser, setSelectedUser] = useState<IUser | null>(null);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [isConfirmDeleteModalOpen, setIsConfirmDeleteModalOpen] = useState(false);
+    const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -71,8 +73,16 @@ export default function UserManagementPage() {
             ));
     }
 
-    const OpenCreateUser = () => {
-        console.log("Wanting to create new user!");
+    const OpenCreateUserModal = () => {
+        setIsCreateModalOpen(true);
+    }
+
+    const CloseCreateUserModal = () => {
+        setIsCreateModalOpen(false);
+    }
+
+    const OnCreatedNewUser = (newUser: IUser) => {
+        setUsers((prevUsers) => [...prevUsers, newUser]);
     }
 
     if (error) {
@@ -132,7 +142,7 @@ export default function UserManagementPage() {
                             <h1 className="text-2xl font-bold">User management</h1>
                             <Button
                                 className="bg-green-500 hover:bg-green-600"
-                                onClick={OpenCreateUser}
+                                onClick={OpenCreateUserModal}
                             >
                                 Create new user
                             </Button>
@@ -148,6 +158,9 @@ export default function UserManagementPage() {
                     </div>
                 </div>
             </div>
+
+            <UserCreateModal open={isCreateModalOpen} OnCreate={OnCreatedNewUser} onClose={CloseCreateUserModal}
+                key={'user-create-modal'} />
 
             <UserEditModal user={selectedUser} open={isEditModalOpen} onClose={closeEditModal} OnUpdate={saveEditedUser}
                 key={'user-edit-modal'} />

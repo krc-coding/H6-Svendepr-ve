@@ -3,6 +3,9 @@ import axios from "axios";
 
 export const apiManager = {
     "user": {
+        "create": (user: IUser) => {
+            return axios.post('/api/user/create', user);
+        },
         "get": (userId: number) => {
             return axios.get('/api/user/' + userId);
         },
