@@ -13,7 +13,11 @@ export interface ITask {
 export interface IUser {
     "id"?: number;
     "name": string;
+    "display_name"?: string;
     "email": string;
+    "role": string;
+    "created_at"?: string;
+    "updated_at"?: string;
 }
 
 export interface IProject {
