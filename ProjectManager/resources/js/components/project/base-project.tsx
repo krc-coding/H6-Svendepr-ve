@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { ITask, IProject } from '@/types/types';
 import TaskItem from "@/components/project/task-item";

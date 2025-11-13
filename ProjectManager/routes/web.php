@@ -18,6 +18,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('projects', function () {
         return Inertia::render('project-board');
     })->name('projects');
+
+    Route::get('user-management', function () {
+        return Inertia::render('user-management');
+    })->name('user-management');
 });
 
 require __DIR__.'/settings.php';

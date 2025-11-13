@@ -12,3 +12,8 @@
 ### 12-11-25
 - Made user controller
 - Talk with kasper about design choices
+
+### 13-11-25
+- Began to learn react while making user management view
+
+
