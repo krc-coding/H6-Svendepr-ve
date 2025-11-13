@@ -21,7 +21,8 @@ class Tasks extends Model
         'status',
         'project_id',
         'created_by',
-        'due_date'
+        'due_date',
+        'account_id'
     ];
 
     public static function getStatuses(): array
@@ -43,5 +44,10 @@ class Tasks extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(user::class);
+    }
+
+    public function account(): BelongsTo
+    {
+        return $this->belongsTo(Account::class);
     }
 }

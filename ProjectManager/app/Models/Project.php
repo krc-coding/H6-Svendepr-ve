@@ -20,7 +20,8 @@ class Project extends Model
         'description',
         'status',
         'project_lead_id',
-        'due_date'
+        'due_date',
+        'account_id'
     ];
 
     public static function getStatuses(): array
@@ -41,5 +42,10 @@ class Project extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(user::class);
+    }
+
+    public function account(): BelongsTo
+    {
+        return $this->belongsTo(Account::class);
     }
 }
