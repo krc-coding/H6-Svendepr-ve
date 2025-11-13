@@ -37,7 +37,8 @@ class TaskController extends Controller
             'status' => $request->status,
             'project_id' => $request->project_id,
             'created_by' => $request->created_by,
-            'due_date' => $request->due_date
+            'due_date' => $request->due_date,
+            'account_id' => $request->user()->account_id
         ]);
 
         return new TaskResource($task);
