@@ -5,13 +5,14 @@ import { Button } from "@/components/ui/button";
 
 interface UserProps {
     user: IUser;
+    onEdit: (user: IUser) => void;
 }
 
 const UserCard = (props: UserProps) => {
-    const { user } = props;
+    const { user, onEdit } = props;
 
     const openUserEdit = () => {
-        console.log("User to edit: " + user.id);
+        onEdit(user);
     }
 
     const deleteUser = () => {

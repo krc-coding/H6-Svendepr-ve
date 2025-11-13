@@ -4,12 +4,15 @@ import { IUser } from '@/types/types';
 import { Head } from '@inertiajs/react';
 import { Button } from "@/components/ui/button";
 import UserCard from '@/components/user-management/user-card';
+import UserEditModal from '@/components/user-management/user-edit'
 import AppLayout from '@/layouts/app-layout';
 
 export default function UserManagementPage() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [users, setUsers] = useState<IUser[]>([]);
+    const [selectedUser, setSelectedUser] = useState<IUser | null>(null);
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -31,6 +34,24 @@ export default function UserManagementPage() {
 
         fetchData();
     }, []);
+
+    const openEditModal = (user: IUser) => {
+        setSelectedUser(user);
+        setIsEditModalOpen(true);
+    };
+
+    const closeEditModal = () => {
+        setSelectedUser(null);
+        setIsEditModalOpen(false);
+    };
+
+    const saveEditedUser = (updatedUser: IUser) => {
+        setUsers((prevUsers) =>
+            prevUsers.map((user) =>
+                user.id === updatedUser.id ? updatedUser : user
+            )
+        );
+    }
 
     const OpenCreateUser = () => {
         console.log("Wanting to create new user!");
@@ -104,11 +125,14 @@ export default function UserManagementPage() {
                 <div className="container mx-auto mt-4">
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                         {users.map((user) => (
-                            <UserCard user={user} key={'user-' + user.id} />
+                            <UserCard user={user} onEdit={openEditModal} key={'user-' + user.id} />
                         ))}
                     </div>
                 </div>
             </div>
+
+            <UserEditModal user={selectedUser} open={isEditModalOpen} onClose={closeEditModal} OnUpdate={saveEditedUser}
+                key={'user-edit-modal'} />
         </AppLayout>
     );
 }
