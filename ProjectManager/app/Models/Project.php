@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
+use App\Models\Scopes\AccountScope;
+use Illuminate\Database\Eloquent\Attributes\ScopedBy;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+#[ScopedBy(AccountScope::class)]
 class Project extends Model
 {
     // Custom enum
