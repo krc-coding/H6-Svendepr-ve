@@ -53,6 +53,10 @@ class ProfileController extends Controller
 
         Auth::logout();
 
+        $account = $user->account()->first();
+        if ($account->users()->count() === 1) {
+            $account->delete();
+        }
         $user->delete();
 
         $request->session()->invalidate();
