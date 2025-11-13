@@ -2,6 +2,7 @@
 
 namespace App\Actions\Fortify;
 
+use App\Models\Account;
 use App\Models\User;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
@@ -30,10 +31,16 @@ class CreateNewUser implements CreatesNewUsers
             'password' => $this->passwordRules(),
         ])->validate();
 
+        $account = Account::create([
+            'name' => 'Project Account',
+        ]);
+
         return User::create([
             'name' => $input['name'],
+            'display_name' => $input['name'],
             'email' => $input['email'],
             'password' => $input['password'],
+            'account_id' => $account->id
         ]);
     }
 }
