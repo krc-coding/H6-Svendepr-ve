@@ -46,7 +46,7 @@ const UserEditModal = (props: UserProps) => {
                     <DialogTitle>{user.name}</DialogTitle>
                 </DialogHeader>
 
-                <form onSubmit={handleSubmit} className="space-y-4 max-w-md mx-auto p-4 bg-[#10101f]">
+                <form onSubmit={handleSubmit} className="space-y-4 max-w-md mx-auto p-4">
                     <div>
                         <label className="block mb-1 font-semibold">Name</label>
                         <Input

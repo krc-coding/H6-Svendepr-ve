@@ -5,6 +5,7 @@ import { Head } from '@inertiajs/react';
 import { Button } from "@/components/ui/button";
 import UserCard from '@/components/user-management/user-card';
 import UserEditModal from '@/components/user-management/user-edit'
+import UserConfirmDeleteModal from '@/components/user-management/user-confirm-delete'
 import AppLayout from '@/layouts/app-layout';
 
 export default function UserManagementPage() {
@@ -13,6 +14,7 @@ export default function UserManagementPage() {
     const [users, setUsers] = useState<IUser[]>([]);
     const [selectedUser, setSelectedUser] = useState<IUser | null>(null);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [isConfirmDeleteModalOpen, setIsConfirmDeleteModalOpen] = useState(false);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -49,8 +51,24 @@ export default function UserManagementPage() {
         setUsers((prevUsers) =>
             prevUsers.map((user) =>
                 user.id === updatedUser.id ? updatedUser : user
-            )
-        );
+            ));
+    }
+
+    const openConfirmDelete = (userToDelete: IUser) => {
+        setSelectedUser(userToDelete);
+        setIsConfirmDeleteModalOpen(true);
+    }
+
+    const closeConfirmDeleteModal = () => {
+        setSelectedUser(null);
+        setIsConfirmDeleteModalOpen(false);
+    }
+
+    const confirmUserDeletion = () => {
+        setUsers((prevUsers) =>
+            prevUsers.filter((user) =>
+                user.id !== selectedUser?.id
+            ));
     }
 
     const OpenCreateUser = () => {
@@ -125,7 +143,7 @@ export default function UserManagementPage() {
                 <div className="container mx-auto mt-4">
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                         {users.map((user) => (
-                            <UserCard user={user} onEdit={openEditModal} key={'user-' + user.id} />
+                            <UserCard user={user} onEdit={openEditModal} onDelete={openConfirmDelete} key={'user-' + user.id} />
                         ))}
                     </div>
                 </div>
@@ -133,6 +151,9 @@ export default function UserManagementPage() {
 
             <UserEditModal user={selectedUser} open={isEditModalOpen} onClose={closeEditModal} OnUpdate={saveEditedUser}
                 key={'user-edit-modal'} />
+
+            <UserConfirmDeleteModal user={selectedUser} open={isConfirmDeleteModalOpen} onClose={closeConfirmDeleteModal}
+                onConfirm={confirmUserDeletion} key={'user-confirm-delete'} />
         </AppLayout>
     );
 }
