@@ -6,11 +6,12 @@ import { Button } from "@/components/ui/button";
 interface UserProps {
     user: IUser;
     onEdit: (user: IUser) => void;
+    onPasswordReset: (user: IUser) => void;
     onDelete: (user: IUser) => void;
 }
 
 const UserCard = (props: UserProps) => {
-    const { user, onEdit, onDelete } = props;
+    const { user, onEdit, onPasswordReset, onDelete } = props;
 
     const getRoleBadgeColor = (role: string) => {
         switch (role) {
@@ -46,12 +47,18 @@ const UserCard = (props: UserProps) => {
                 </CardDescription>
             </CardHeader>
             <CardContent className="pt-0">
-                <div className="flex space-x-2">
+                <div className="flex flex-wrap gap-2">
                     <Button
                         className="bg-yellow-400 hover:bg-yellow-500"
                         onClick={() => onEdit(user)}
                     >
                         Edit
+                    </Button>
+                    <Button
+                        className="bg-yellow-400 hover:bg-yellow-500"
+                        onClick={() => onPasswordReset(user)}
+                    >
+                        Reset password
                     </Button>
                     <Button
                         className="bg-red-500 hover:bg-red-600 text-white"
