@@ -5,18 +5,12 @@ import { Button } from "@/components/ui/button";
 
 interface UserProps {
     user: IUser;
+    onEdit: (user: IUser) => void;
+    onDelete: (user: IUser) => void;
 }
 
 const UserCard = (props: UserProps) => {
-    const { user } = props;
-
-    const openUserEdit = () => {
-        console.log("User to edit: " + user.id);
-    }
-
-    const deleteUser = () => {
-        console.log("User to delete: " + user.id);
-    }
+    const { user, onEdit, onDelete } = props;
 
     const getRoleBadgeColor = (role: string) => {
         switch (role) {
@@ -55,13 +49,13 @@ const UserCard = (props: UserProps) => {
                 <div className="flex space-x-2">
                     <Button
                         className="bg-yellow-400 hover:bg-yellow-500"
-                        onClick={openUserEdit}
+                        onClick={() => onEdit(user)}
                     >
                         Edit
                     </Button>
                     <Button
                         className="bg-red-500 hover:bg-red-600 text-white"
-                        onClick={deleteUser}
+                        onClick={() => onDelete(user)}
                     >
                         Delete
                     </Button>

@@ -3,6 +3,9 @@ import axios from "axios";
 
 export const apiManager = {
     "user": {
+        "create": (user: IUser) => {
+            return axios.post('/api/user/create', user);
+        },
         "get": (userId: number) => {
             return axios.get('/api/user/' + userId);
         },
@@ -10,10 +13,10 @@ export const apiManager = {
             return axios.get('/api/user');
         },
         "update": (userId: number, user: IUser) => {
-            return axios.patch('/api/user/' + userId, user);
+            return axios.patch('/api/user/edit/' + userId, user);
         },
         "updatePassword": (userId: number, password: string, passwordConfirmed: string) => {
-            return axios.patch('/api/user/' + userId, {
+            return axios.patch('/api/user/update_password/' + userId, {
                 "password": password,
                 "password_confirmation": passwordConfirmed
             })

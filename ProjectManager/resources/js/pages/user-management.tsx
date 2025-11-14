@@ -4,12 +4,19 @@ import { IUser } from '@/types/types';
 import { Head } from '@inertiajs/react';
 import { Button } from "@/components/ui/button";
 import UserCard from '@/components/user-management/user-card';
+import UserEditModal from '@/components/user-management/user-edit'
+import UserConfirmDeleteModal from '@/components/user-management/user-confirm-delete'
+import UserCreateModal from '@/components/user-management/user-create';
 import AppLayout from '@/layouts/app-layout';
 
 export default function UserManagementPage() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [users, setUsers] = useState<IUser[]>([]);
+    const [selectedUser, setSelectedUser] = useState<IUser | null>(null);
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [isConfirmDeleteModalOpen, setIsConfirmDeleteModalOpen] = useState(false);
+    const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -32,8 +39,50 @@ export default function UserManagementPage() {
         fetchData();
     }, []);
 
-    const OpenCreateUser = () => {
-        console.log("Wanting to create new user!");
+    const openEditModal = (user: IUser) => {
+        setSelectedUser(user);
+        setIsEditModalOpen(true);
+    };
+
+    const closeEditModal = () => {
+        setSelectedUser(null);
+        setIsEditModalOpen(false);
+    };
+
+    const saveEditedUser = (updatedUser: IUser) => {
+        setUsers((prevUsers) =>
+            prevUsers.map((user) =>
+                user.id === updatedUser.id ? updatedUser : user
+            ));
+    }
+
+    const openConfirmDelete = (userToDelete: IUser) => {
+        setSelectedUser(userToDelete);
+        setIsConfirmDeleteModalOpen(true);
+    }
+
+    const closeConfirmDeleteModal = () => {
+        setSelectedUser(null);
+        setIsConfirmDeleteModalOpen(false);
+    }
+
+    const confirmUserDeletion = () => {
+        setUsers((prevUsers) =>
+            prevUsers.filter((user) =>
+                user.id !== selectedUser?.id
+            ));
+    }
+
+    const OpenCreateUserModal = () => {
+        setIsCreateModalOpen(true);
+    }
+
+    const CloseCreateUserModal = () => {
+        setIsCreateModalOpen(false);
+    }
+
+    const OnCreatedNewUser = (newUser: IUser) => {
+        setUsers((prevUsers) => [...prevUsers, newUser]);
     }
 
     if (error) {
@@ -93,7 +142,7 @@ export default function UserManagementPage() {
                             <h1 className="text-2xl font-bold">User management</h1>
                             <Button
                                 className="bg-green-500 hover:bg-green-600"
-                                onClick={OpenCreateUser}
+                                onClick={OpenCreateUserModal}
                             >
                                 Create new user
                             </Button>
@@ -104,11 +153,20 @@ export default function UserManagementPage() {
                 <div className="container mx-auto mt-4">
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                         {users.map((user) => (
-                            <UserCard user={user} key={'user-' + user.id} />
+                            <UserCard user={user} onEdit={openEditModal} onDelete={openConfirmDelete} key={'user-' + user.id} />
                         ))}
                     </div>
                 </div>
             </div>
+
+            <UserCreateModal open={isCreateModalOpen} OnCreate={OnCreatedNewUser} onClose={CloseCreateUserModal}
+                key={'user-create-modal'} />
+
+            <UserEditModal user={selectedUser} open={isEditModalOpen} onClose={closeEditModal} OnUpdate={saveEditedUser}
+                key={'user-edit-modal'} />
+
+            <UserConfirmDeleteModal user={selectedUser} open={isConfirmDeleteModalOpen} onClose={closeConfirmDeleteModal}
+                onConfirm={confirmUserDeletion} key={'user-confirm-delete'} />
         </AppLayout>
     );
 }
