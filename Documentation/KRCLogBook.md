@@ -25,3 +25,12 @@
 - Discovered issues with the account scope, which caused infinite loops. 
 - Found issues with api requests not being correctly stateful.
 - Fixed these issues.
+
+## 2025-11-14:
+
+- Worked on the user profile page by copying the settings page from the laravel starter kit.
+
+## 2025-11-17:
+
+- Finished the user profile page.
+- Started work on refactoring the project page to make it more reusable.
