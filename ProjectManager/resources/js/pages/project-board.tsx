@@ -39,15 +39,6 @@ export default function ProjectBoardPage() {
 
                 setTasks(validTasks);
                 setProjects(validProjects);
-
-                // Log any filtered out items
-                if (tasksResponse.data.length !== validTasks.length) {
-                    console.warn(`Filtered out ${tasksResponse.data.length - validTasks.length} tasks with invalid statuses`);
-                }
-                if (projectsResponse.data.length !== validProjects.length) {
-                    console.warn(`Filtered out ${projectsResponse.data.length - validProjects.length} projects with invalid statuses`);
-                }
-
             } catch (err: any) {
                 console.error('Error fetching data:', err);
                 setError(err.response?.data?.message || 'Failed to fetch data');
