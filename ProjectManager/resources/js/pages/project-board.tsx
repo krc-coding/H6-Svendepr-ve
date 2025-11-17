@@ -1,15 +1,18 @@
-import {useState, useEffect} from 'react';
-import {Head} from '@inertiajs/react';
-import {ProjectBoard} from '@/components/project/base-project';
-import {ITask, IProject, TASK_STATUS, PROJECT_STATUS} from '@/types/types';
-import {apiManager} from '@/lib/api-manager';
+import { useState, useEffect } from 'react';
+import { Head } from '@inertiajs/react';
+import { ProjectBoard } from '@/components/project/base-project';
+import { Button } from "@/components/ui/button";
+import { ITask, IProject, TASK_STATUS, PROJECT_STATUS } from '@/types/types';
+import { apiManager } from '@/lib/api-manager';
 import AppLayout from "@/layouts/app-layout";
+import TaskCreateModal from '@/components/task-create';
 
 export default function ProjectBoardPage() {
     const [tasks, setTasks] = useState<ITask[]>([]);
     const [projects, setProjects] = useState<IProject[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [isTaskCreateModalOpen, setIsTaskCreateModalOpen] = useState(false);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -60,7 +63,7 @@ export default function ProjectBoardPage() {
 
             setTasks(prevTasks =>
                 prevTasks.map(task =>
-                    task.id === taskId ? {...task, status: newStatus as any} : task
+                    task.id === taskId ? { ...task, status: newStatus as any } : task
                 )
             );
         } catch (err: any) {
@@ -75,7 +78,7 @@ export default function ProjectBoardPage() {
 
             setProjects(prevProjects =>
                 prevProjects.map(project =>
-                    project.id === projectId ? {...project, status: newStatus as any} : project
+                    project.id === projectId ? { ...project, status: newStatus as any } : project
                 )
             );
         } catch (err: any) {
@@ -84,12 +87,24 @@ export default function ProjectBoardPage() {
         }
     };
 
+    const openCreateTask = () => {
+        setIsTaskCreateModalOpen(true);
+    }
+
+    const closeCreateTask = () => {
+        setIsTaskCreateModalOpen(false);
+    }
+
+    const onCreatedNewTask = (newTask: ITask) => {
+        setTasks((prevTask) => [...prevTask, newTask]);
+    }
+
     if (loading) {
         return (
             <AppLayout>
-                <Head title="Project Board"/>
+                <Head title="Project Board" />
 
-                <div className="min-h-screen" style={{backgroundColor: '#212830'}}>
+                <div className="min-h-screen" style={{ backgroundColor: '#212830' }}>
                     <header className="shadow-sm border-b">
                         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
                             <h1 className="text-2xl font-bold text-gray-900">Project Board</h1>
@@ -113,9 +128,9 @@ export default function ProjectBoardPage() {
     if (error) {
         return (
             <AppLayout>
-                <Head title="Project Board"/>
+                <Head title="Project Board" />
 
-                <div className="min-h-screen" style={{backgroundColor: '#212830'}}>
+                <div className="min-h-screen" style={{ backgroundColor: '#212830' }}>
                     <header className="shadow-sm border-b">
                         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
                             <h1 className="text-2xl font-bold text-gray-900">Project Board</h1>
@@ -144,12 +159,26 @@ export default function ProjectBoardPage() {
 
     return (
         <AppLayout>
-            <Head title="Project Board"/>
-            <div className="min-h-screen" style={{backgroundColor: '#212830'}}>
+            <Head title="Project Board" />
+            <div className="min-h-screen" style={{ backgroundColor: '#212830' }}>
                 <header className="shadow-sm border-b">
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-                        <div>
+                        <div className="flex items-center justify-between">
                             <h1 className="text-2xl font-bold">Project Board</h1>
+                            <div className='flex space-x-2'>
+                                <Button
+                                    className="bg-[#fafafa] hover:bg-[#e7e8ecf3]"
+                                    onClick={openCreateTask}
+                                >
+                                    Create project
+                                </Button>
+                                <Button
+                                    className="bg-[#fafafa] hover:bg-[#e7e8ecf3]"
+                                    onClick={openCreateTask}
+                                >
+                                    Create task
+                                </Button>
+                            </div>
                         </div>
                     </div>
                 </header>
@@ -161,6 +190,13 @@ export default function ProjectBoardPage() {
                     onProjectStatusUpdate={handleProjectStatusUpdate}
                 />
             </div>
+
+            <TaskCreateModal
+                open={isTaskCreateModalOpen}
+                projectId={null}
+                onClose={closeCreateTask}
+                OnCreate={onCreatedNewTask}
+            />
         </AppLayout>
     );
 }
