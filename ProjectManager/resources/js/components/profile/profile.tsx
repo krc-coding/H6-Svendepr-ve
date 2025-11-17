@@ -15,19 +15,25 @@ const Profile = () => {
     const mustVerifyEmail = true;
     const status = "";
     const { auth } = usePage<SharedData>().props;
+    const [user, setUser] = React.useState<any>(auth.user);
     const {data, setData} = useForm(
         {
-            display_name: auth.user.display_name,
-            email: auth.user.email,
+            display_name: user.display_name,
+            email: user.email,
         },
     );
-
 
     const saveChanges = () => {
         console.log(data);
         apiManager.user.update(auth.user.id, {
             ...auth.user,
             ...data
+        }).then(() => {
+            setUser({
+                ...auth.user,
+                ...data
+            });
+            setData(data);
         });
     }
 
@@ -54,7 +60,7 @@ const Profile = () => {
                                 <Input
                                     id="name"
                                     className="mt-1 block w-full"
-                                    defaultValue={auth.user.name}
+                                    defaultValue={user.name}
                                     name="name"
                                     readOnly
                                 />
@@ -138,7 +144,7 @@ const Profile = () => {
                                 <Input
                                     id="role"
                                     className="mt-1 block w-full"
-                                    defaultValue={auth.user.role}
+                                    defaultValue={user.role}
                                     name="role"
                                     readOnly
                                 />
