@@ -22,6 +22,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('user-management', function () {
         return Inertia::render('user-management');
     })->name('user-management');
+
+    Route::get('profile', function () {
+        return Inertia::render('user/profile');
+    });
 });
 
 require __DIR__.'/settings.php';
