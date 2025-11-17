@@ -6,6 +6,7 @@ import { ITask, IProject, TASK_STATUS, PROJECT_STATUS } from '@/types/types';
 import { apiManager } from '@/lib/api-manager';
 import AppLayout from "@/layouts/app-layout";
 import TaskCreateModal from '@/components/task-create';
+import ProjectCreateModal from '@/components/project-create';
 
 export default function ProjectBoardPage() {
     const [tasks, setTasks] = useState<ITask[]>([]);
@@ -13,6 +14,7 @@ export default function ProjectBoardPage() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [isTaskCreateModalOpen, setIsTaskCreateModalOpen] = useState(false);
+    const [isProjectCreateModalOpen, setIsProjectCreateModalOpen] = useState(false);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -99,6 +101,18 @@ export default function ProjectBoardPage() {
         setTasks((prevTask) => [...prevTask, newTask]);
     }
 
+    const openCreateProject = () => {
+        setIsProjectCreateModalOpen(true);
+    }
+
+    const closeCreateProject = () => {
+        setIsProjectCreateModalOpen(false);
+    }
+
+    const onCreatedNewProject = (newProject: IProject) => {
+        setProjects((prevProjects) => [...prevProjects, newProject]);
+    }
+
     if (loading) {
         return (
             <AppLayout>
@@ -168,7 +182,7 @@ export default function ProjectBoardPage() {
                             <div className='flex space-x-2'>
                                 <Button
                                     className="bg-[#fafafa] hover:bg-[#e7e8ecf3]"
-                                    onClick={openCreateTask}
+                                    onClick={openCreateProject}
                                 >
                                     Create project
                                 </Button>
@@ -196,6 +210,12 @@ export default function ProjectBoardPage() {
                 projectId={null}
                 onClose={closeCreateTask}
                 OnCreate={onCreatedNewTask}
+            />
+
+            <ProjectCreateModal
+                open={isProjectCreateModalOpen}
+                onClose={closeCreateProject}
+                OnCreate={onCreatedNewProject}
             />
         </AppLayout>
     );

@@ -3,21 +3,20 @@ import { apiManager } from '@/lib/api-manager';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ITask } from '@/types/types';
-import { SharedData } from "@/types";
-import { usePage } from "@inertiajs/react";
+import { IProject } from '@/types/types';
 import DateTimePicker from "@/components/ui/date-time-picker";
+import { usePage } from "@inertiajs/react";
+import { SharedData } from "@/types";
 
-interface TaskProps {
+interface ProjectProps {
     open: boolean;
-    projectId: number | null;
     onClose: () => void;
-    OnCreate: (task: ITask) => void;
+    OnCreate: (project: IProject) => void;
 }
 
-const TaskCreateModal = (props: TaskProps) => {
-    const { open, projectId, onClose, OnCreate } = props;
-    const [title, setTitle] = useState<string>("");
+const ProjectCreateModal = (props: ProjectProps) => {
+    const { open, onClose, OnCreate } = props;
+    const [name, setName] = useState<string>("");
     const [description, setDescription] = useState<string>("");
     const [dueDate, setDueDate] = useState<string>("");
     const { auth } = usePage<SharedData>().props;
@@ -26,17 +25,16 @@ const TaskCreateModal = (props: TaskProps) => {
     const handleSubmit = async (e: { preventDefault: () => void; }) => {
         e.preventDefault();
 
-        const task: ITask = {
-            title: title,
+        const project: IProject = {
+            name: name,
             description: description,
             due_date: dueDate,
-            status: "Open", // We don't have blocked yet
-            project_id: projectId,
-            created_by: userId,
+            status: "Open",
+            project_lead_id: userId,
         };
 
         try {
-            const response = await apiManager.task.create(task);
+            const response = await apiManager.project.create(project);
             OnCreate(response.data.data);
             CloseModal();
         }
@@ -46,7 +44,7 @@ const TaskCreateModal = (props: TaskProps) => {
     };
 
     const CloseModal = () => {
-        setTitle("");
+        setName("");
         setDescription("");
         onClose();
     }
@@ -55,19 +53,19 @@ const TaskCreateModal = (props: TaskProps) => {
         <Dialog open={open} onOpenChange={CloseModal}>
             <DialogContent className="bg-[#10101f] rounded-lg p-6">
                 <DialogHeader>
-                    <DialogTitle>Create task</DialogTitle>
+                    <DialogTitle>Create project</DialogTitle>
                 </DialogHeader>
 
                 <form onSubmit={handleSubmit} className="space-y-4 max-w-md mx-auto p-4">
                     <div>
-                        <label className="block mb-1 font-semibold">Title</label>
+                        <label className="block mb-1 font-semibold">Name</label>
                         <Input
                             type="text"
-                            value={title}
+                            value={name}
                             required={true}
-                            onChange={(e) => setTitle(e.target.value)}
+                            onChange={(e) => setName(e.target.value)}
                             className="w-full px-3 py-2 bg-gray-800 border-gray-700"
-                            placeholder="Enter task title"
+                            placeholder="Enter project name"
                         />
                     </div>
 
@@ -79,7 +77,7 @@ const TaskCreateModal = (props: TaskProps) => {
                             required={true}
                             onChange={(e) => setDescription(e.target.value)}
                             className="w-full px-3 py-2 bg-gray-800 border-gray-700"
-                            placeholder="Enter task description"
+                            placeholder="Enter project description"
                         />
                     </div>
 
@@ -100,4 +98,4 @@ const TaskCreateModal = (props: TaskProps) => {
     );
 }
 
-export default TaskCreateModal;
+export default ProjectCreateModal;
