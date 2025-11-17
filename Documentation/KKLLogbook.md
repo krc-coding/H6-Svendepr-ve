@@ -20,3 +20,7 @@
 ### 14-11-25
 - Had a problem with auth and needed help from Kasper
 - Made admin reset password for user
+
+### 17-11-25
+- Made task and project creation 
+    - Had a problem, the project board wouldn't update
