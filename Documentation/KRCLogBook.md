@@ -34,3 +34,7 @@
 
 - Finished the user profile page.
 - Started work on refactoring the project page to make it more reusable.
+
+## 2025-11-18:
+
+- Created layout config to make it easier to change the layout of the project boards.
