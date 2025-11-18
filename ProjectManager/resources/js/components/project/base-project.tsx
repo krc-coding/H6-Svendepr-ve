@@ -1,29 +1,26 @@
-import { useState, useEffect } from 'react';
-import { ITask, IProject } from '@/types/types';
+import {useState, useEffect} from 'react';
+import {ITask, IProject} from '@/types/types';
 import TaskItem from "@/components/project/task-item";
 import ProjectItem from "@/components/project/project-item";
+import {ProjectLayout} from "@/layouts/project/default-layout";
 
 interface ProjectBoardProps {
     tasks: ITask[];
     projects: IProject[];
     onTaskStatusUpdate?: (taskId: number, newStatus: string) => void;
     onProjectStatusUpdate?: (projectId: number, newStatus: string) => void;
+    layout: ProjectLayout;
 }
 
 // Updated status columns to match your PHP model constants
 const statusColumns = [
-    { id: 'Open', title: 'Open', color: 'bg-gray-100' },
-    { id: 'In process', title: 'In Process', color: 'bg-blue-100' },
-    { id: 'Completed', title: 'Completed', color: 'bg-green-100' },
-    { id: 'Cancelled', title: 'Cancelled', color: 'bg-red-100' },
+    {id: 'Open', title: 'Open', color: 'bg-gray-100'},
+    {id: 'In process', title: 'In Process', color: 'bg-blue-100'},
+    {id: 'Completed', title: 'Completed', color: 'bg-green-100'},
+    {id: 'Cancelled', title: 'Cancelled', color: 'bg-red-100'},
 ];
 
-export function ProjectBoard({
-                                 tasks,
-                                 projects,
-                                 onTaskStatusUpdate,
-                                 onProjectStatusUpdate
-                             }: ProjectBoardProps) {
+export function ProjectBoard({tasks, projects, onTaskStatusUpdate, onProjectStatusUpdate, layout}: ProjectBoardProps) {
     const [tasksByStatus, setTasksByStatus] = useState<Record<string, ITask[]>>({});
     const [projectsByStatus, setProjectsByStatus] = useState<Record<string, IProject[]>>({});
 
@@ -83,35 +80,37 @@ export function ProjectBoard({
 
     return (
         <div className="flex gap-6 p-6 overflow-x-auto min-h-screen">
-            {statusColumns.map((column) => {
-                const tasksInColumn = tasksByStatus[column.id] || [];
-                const projectsInColumn = projectsByStatus[column.id] || [];
+            {layout.columns.map((column) => {
+                const tasksInColumn = tasksByStatus[column] || [];
+                const projectsInColumn = projectsByStatus[column] || [];
                 const totalItems = tasksInColumn.length + projectsInColumn.length;
 
                 return (
-                    <div key={column.id} className="flex-shrink-0 w-80">
-                        <div className={`rounded-lg p-4 mb-4`} style={{ backgroundColor: "#151b23" }}>
-                            <h3 className="font-semibold">{column.title}</h3>
+                    <div key={column} className="flex-shrink-0 w-80">
+                        <div className={`rounded-lg p-4 mb-4 flex justify-between`} style={{backgroundColor: "#151b23"}}>
+                            <h3 className="font-semibold">{column}</h3>
                             <div className="text-sm mt-1">
                                 {totalItems} items
                             </div>
                         </div>
 
                         <div className="space-y-3">
-                            {/* Render Projects (except for Blocked column) */}
-                            {column.id !== 'Blocked' && projectsInColumn.map((project) => (
-                                <ProjectItem project={project} formatDate={formatDate} key={'project-' + project.id} />
+                            {/* Render Projects*/}
+                            {layout.showProjects && projectsInColumn.map((project) => (
+                                <ProjectItem project={project} formatDate={formatDate} key={'project-' + project.id}/>
                             ))}
 
                             {/* Render Tasks */}
-                            {tasksInColumn.map((task) => (
-                                <TaskItem task={task} formatDate={formatDate} getProjectName={getProjectName} key={'task-' + task.id} />
+                            {layout.showTasks && tasksInColumn.map((task) => (
+                                <TaskItem task={task} formatDate={formatDate} getProjectName={getProjectName}
+                                          key={'task-' + task.id}/>
                             ))}
 
                             {/* Empty state for columns */}
                             {totalItems === 0 && (
-                                <div className="text-center py-8 text-gray-400 border-2 border-dashed border-gray-200 rounded-lg">
-                                    <p className="text-sm">No items in {column.title}</p>
+                                <div
+                                    className="text-center py-8 text-gray-400 border-2 border-dashed border-gray-200 rounded-lg">
+                                    <p className="text-sm">No items with status "{column}"</p>
                                 </div>
                             )}
                         </div>
