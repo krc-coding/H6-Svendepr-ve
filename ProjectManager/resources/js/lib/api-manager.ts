@@ -15,8 +15,9 @@ export const apiManager = {
         "update": (userId: number, user: IUser) => {
             return axios.patch('/api/user/edit/' + userId, user);
         },
-        "updatePassword": (userId: number, password: string, passwordConfirmed: string) => {
+        "updatePassword": (userId: number, current_password: string, password: string, passwordConfirmed: string) => {
             return axios.patch('/api/user/update_password/' + userId, {
+                "current_password": current_password,
                 "password": password,
                 "password_confirmation": passwordConfirmed
             })
