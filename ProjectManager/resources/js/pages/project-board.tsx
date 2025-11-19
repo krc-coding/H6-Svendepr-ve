@@ -1,71 +1,94 @@
-import { useState, useEffect } from 'react';
-import { Head } from '@inertiajs/react';
-import { ProjectBoard } from '@/components/project/base-project';
-import { Button } from "@/components/ui/button";
-import { ITask, IProject, TASK_STATUS, PROJECT_STATUS } from '@/types/types';
-import { apiManager } from '@/lib/api-manager';
+import {useState, useEffect} from 'react';
+import {Head, usePage} from '@inertiajs/react';
+import {ProjectBoard} from '@/components/project/base-project';
+import {Button} from "@/components/ui/button";
+import {ITask, IProject, TASK_STATUS, PROJECT_STATUS} from '@/types/types';
+import {apiManager} from '@/lib/api-manager';
 import AppLayout from "@/layouts/app-layout";
 import TaskCreateModal from '@/components/task-create';
 import ProjectCreateModal from '@/components/project-create';
+import {defaultLayout, ProjectLayout} from "@/layouts/project/default-layout";
+import type {SharedData} from "@/types";
 
 export default function ProjectBoardPage() {
+    const {auth} = usePage<SharedData>().props;
+
     const [tasks, setTasks] = useState<ITask[]>([]);
     const [projects, setProjects] = useState<IProject[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [isTaskCreateModalOpen, setIsTaskCreateModalOpen] = useState(false);
     const [isProjectCreateModalOpen, setIsProjectCreateModalOpen] = useState(false);
+    const [layout, setLayout] = useState<ProjectLayout>(defaultLayout);
 
     useEffect(() => {
         const fetchData = async () => {
-            try {
-                setLoading(true);
-                setError(null);
-
-                const [tasksResponse, projectsResponse] = await Promise.all([
-                    apiManager.task.getAll(),
-                    apiManager.project.getAll()
-                ]);
-
-                // Filter out any tasks with invalid statuses
-                const validTasks = tasksResponse.data.filter((task: ITask) =>
-                    Object.values(TASK_STATUS).includes(task.status as any)
-                );
-
-                // Filter out any projects with invalid statuses
-                const validProjects = projectsResponse.data.filter((project: IProject) =>
-                    Object.values(PROJECT_STATUS).includes(project.status as any)
-                );
-
-                setTasks(validTasks);
-                setProjects(validProjects);
-
-                // Log any filtered out items
-                if (tasksResponse.data.length !== validTasks.length) {
-                    console.warn(`Filtered out ${tasksResponse.data.length - validTasks.length} tasks with invalid statuses`);
-                }
-                if (projectsResponse.data.length !== validProjects.length) {
-                    console.warn(`Filtered out ${projectsResponse.data.length - validProjects.length} projects with invalid statuses`);
-                }
-
-            } catch (err: any) {
-                console.error('Error fetching data:', err);
-                setError(err.response?.data?.message || 'Failed to fetch data');
-            } finally {
-                setLoading(false);
-            }
         };
 
         fetchData();
     }, []);
-
     const handleTaskStatusUpdate = async (taskId: number, newStatus: string) => {
+
+        try {
+            setLoading(true);
+            setError(null);
+
+            const [tasksResponse, projectsResponse] = await Promise.all([
+                apiManager.task.getAll(),
+                apiManager.project.getAll()
+            ]);
+
+            // Filter out any tasks with invalid statuses
+            const validTasks = tasksResponse.data.filter((task: ITask) => {
+                let shouldShow = false;
+
+                if (layout.showOnlyCreatedByMe && task.created_by == auth.user.id) {
+                    shouldShow = true;
+                } else if (!layout.showOnlyCreatedByMe) {
+                    shouldShow = true;
+                    // } else if (layout.showOnlyAssignedToMe && task.assigned_to == auth.user.id) {
+                    //     shouldShow = true;
+                    // } else if (!layout.showOnlyAssignedToMe) {
+                    //     shouldShow = true;
+                }
+
+
+                if (!shouldShow) return false;
+                shouldShow = Object.values(TASK_STATUS).includes(task.status as any);
+                return shouldShow;
+            });
+
+            // Filter out any projects with invalid statuses
+            const validProjects = projectsResponse.data.filter((project: IProject) => {
+                let shouldShow = false;
+
+                // We don't have created by on project elements, so we can't filter by it here
+                // if (layout.showOnlyAssignedToMe && project.project_lead_id == auth.user.id) {
+                //     shouldShow = true;
+                // } else if (!layout.showOnlyAssignedToMe) {
+                //     shouldShow = true;
+                // }
+
+
+                if (!shouldShow) return false;
+                shouldShow = Object.values(PROJECT_STATUS).includes(project.status as any)
+                return shouldShow;
+            });
+
+            setTasks(validTasks);
+            setProjects(validProjects);
+        } catch (err: any) {
+            console.error('Error fetching data:', err);
+            setError(err.response?.data?.message || 'Failed to fetch data');
+        } finally {
+            setLoading(false);
+        }
         try {
             await apiManager.task.updateStatus(taskId, newStatus);
 
             setTasks(prevTasks =>
                 prevTasks.map(task =>
-                    task.id === taskId ? { ...task, status: newStatus as any } : task
+                    task.id === taskId ? {...task, status: newStatus as any} : task
                 )
             );
         } catch (err: any) {
@@ -80,7 +103,7 @@ export default function ProjectBoardPage() {
 
             setProjects(prevProjects =>
                 prevProjects.map(project =>
-                    project.id === projectId ? { ...project, status: newStatus as any } : project
+                    project.id === projectId ? {...project, status: newStatus as any} : project
                 )
             );
         } catch (err: any) {
@@ -116,9 +139,9 @@ export default function ProjectBoardPage() {
     if (loading) {
         return (
             <AppLayout>
-                <Head title="Project Board" />
+                <Head title="Project Board"/>
 
-                <div className="min-h-screen" style={{ backgroundColor: '#212830' }}>
+                <div className="min-h-screen" style={{backgroundColor: '#212830'}}>
                     <header className="shadow-sm border-b">
                         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
                             <h1 className="text-2xl font-bold text-gray-900">Project Board</h1>
@@ -142,9 +165,9 @@ export default function ProjectBoardPage() {
     if (error) {
         return (
             <AppLayout>
-                <Head title="Project Board" />
+                <Head title="Project Board"/>
 
-                <div className="min-h-screen" style={{ backgroundColor: '#212830' }}>
+                <div className="min-h-screen" style={{backgroundColor: '#212830'}}>
                     <header className="shadow-sm border-b">
                         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
                             <h1 className="text-2xl font-bold text-gray-900">Project Board</h1>
@@ -173,8 +196,8 @@ export default function ProjectBoardPage() {
 
     return (
         <AppLayout>
-            <Head title="Project Board" />
-            <div className="min-h-screen" style={{ backgroundColor: '#212830' }}>
+            <Head title="Project Board"/>
+            <div className="min-h-screen" style={{backgroundColor: '#212830'}}>
                 <header className="shadow-sm border-b">
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
                         <div className="flex items-center justify-between">
@@ -202,6 +225,7 @@ export default function ProjectBoardPage() {
                     projects={projects}
                     onTaskStatusUpdate={handleTaskStatusUpdate}
                     onProjectStatusUpdate={handleProjectStatusUpdate}
+                    layout={defaultLayout}
                 />
             </div>
 
