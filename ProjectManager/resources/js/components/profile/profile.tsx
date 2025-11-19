@@ -7,7 +7,6 @@ import InputError from "@/components/input-error";
 import {send} from "@/routes/verification";
 import {Button} from "@/components/ui/button";
 import {Transition} from "@headlessui/react";
-import DeleteUser from "@/components/delete-user";
 import type {SharedData} from "@/types";
 import {apiManager} from "@/lib/api-manager";
 import {IUser} from "@/types/types";
@@ -15,7 +14,7 @@ import {IUser} from "@/types/types";
 const Profile = () => {
     const mustVerifyEmail = true;
     const status = "";
-    const { auth } = usePage<SharedData>().props;
+    const {auth} = usePage<SharedData>().props;
     const [user, setUser] = React.useState<IUser>(auth.user);
     const {data, setData} = useForm(
         {
@@ -180,8 +179,6 @@ const Profile = () => {
                     )}
                 </Form>
             </div>
-
-            <DeleteUser/>
         </>
     );
 };
