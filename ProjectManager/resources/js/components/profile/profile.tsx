@@ -10,12 +10,13 @@ import {Transition} from "@headlessui/react";
 import DeleteUser from "@/components/delete-user";
 import type {SharedData} from "@/types";
 import {apiManager} from "@/lib/api-manager";
+import {IUser} from "@/types/types";
 
 const Profile = () => {
     const mustVerifyEmail = true;
     const status = "";
     const { auth } = usePage<SharedData>().props;
-    const [user, setUser] = React.useState<any>(auth.user);
+    const [user, setUser] = React.useState<IUser>(auth.user);
     const {data, setData} = useForm(
         {
             display_name: user.display_name,
@@ -23,8 +24,8 @@ const Profile = () => {
         },
     );
 
-    const saveChanges = () => {
-        console.log(data);
+    const saveChanges = (event: any) => {
+        event.preventDefault();
         apiManager.user.update(auth.user.id, {
             ...auth.user,
             ...data
@@ -46,7 +47,7 @@ const Profile = () => {
                 />
 
                 <Form
-                    onSubmitCapture={saveChanges}
+                    onSubmit={saveChanges}
                     options={{
                         preserveScroll: true,
                     }}
