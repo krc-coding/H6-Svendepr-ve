@@ -23,66 +23,65 @@ export default function ProjectBoardPage() {
 
     useEffect(() => {
         const fetchData = async () => {
+            try {
+                setLoading(true);
+                setError(null);
+
+                const [tasksResponse, projectsResponse] = await Promise.all([
+                    apiManager.task.getAll(),
+                    apiManager.project.getAll()
+                ]);
+
+                // Filter out any tasks with invalid statuses
+                const validTasks = tasksResponse.data.filter((task: ITask) => {
+                    let shouldShow = false;
+
+                    if (layout.showOnlyCreatedByMe && task.created_by == auth.user.id) {
+                        shouldShow = true;
+                    } else if (!layout.showOnlyCreatedByMe) {
+                        shouldShow = true;
+                        // } else if (layout.showOnlyAssignedToMe && task.assigned_to == auth.user.id) {
+                        //     shouldShow = true;
+                        // } else if (!layout.showOnlyAssignedToMe) {
+                        //     shouldShow = true;
+                    }
+
+
+                    if (!shouldShow) return false;
+                    shouldShow = Object.values(TASK_STATUS).includes(task.status as any);
+                    return shouldShow;
+                });
+
+                // Filter out any projects with invalid statuses
+                const validProjects = projectsResponse.data.filter((project: IProject) => {
+                    let shouldShow = false;
+
+                    // We don't have created by on project elements, so we can't filter by it here
+                    // if (layout.showOnlyAssignedToMe && project.project_lead_id == auth.user.id) {
+                    //     shouldShow = true;
+                    // } else if (!layout.showOnlyAssignedToMe) {
+                    //     shouldShow = true;
+                    // }
+
+
+                    if (!shouldShow) return false;
+                    shouldShow = Object.values(PROJECT_STATUS).includes(project.status as any)
+                    return shouldShow;
+                });
+
+                setTasks(validTasks);
+                setProjects(validProjects);
+            } catch (err: any) {
+                console.error('Error fetching data:', err);
+                setError(err.response?.data?.message || 'Failed to fetch data');
+            } finally {
+                setLoading(false);
+            }
         };
 
         fetchData();
     }, []);
     const handleTaskStatusUpdate = async (taskId: number, newStatus: string) => {
-
-        try {
-            setLoading(true);
-            setError(null);
-
-            const [tasksResponse, projectsResponse] = await Promise.all([
-                apiManager.task.getAll(),
-                apiManager.project.getAll()
-            ]);
-
-            // Filter out any tasks with invalid statuses
-            const validTasks = tasksResponse.data.filter((task: ITask) => {
-                let shouldShow = false;
-
-                if (layout.showOnlyCreatedByMe && task.created_by == auth.user.id) {
-                    shouldShow = true;
-                } else if (!layout.showOnlyCreatedByMe) {
-                    shouldShow = true;
-                    // } else if (layout.showOnlyAssignedToMe && task.assigned_to == auth.user.id) {
-                    //     shouldShow = true;
-                    // } else if (!layout.showOnlyAssignedToMe) {
-                    //     shouldShow = true;
-                }
-
-
-                if (!shouldShow) return false;
-                shouldShow = Object.values(TASK_STATUS).includes(task.status as any);
-                return shouldShow;
-            });
-
-            // Filter out any projects with invalid statuses
-            const validProjects = projectsResponse.data.filter((project: IProject) => {
-                let shouldShow = false;
-
-                // We don't have created by on project elements, so we can't filter by it here
-                // if (layout.showOnlyAssignedToMe && project.project_lead_id == auth.user.id) {
-                //     shouldShow = true;
-                // } else if (!layout.showOnlyAssignedToMe) {
-                //     shouldShow = true;
-                // }
-
-
-                if (!shouldShow) return false;
-                shouldShow = Object.values(PROJECT_STATUS).includes(project.status as any)
-                return shouldShow;
-            });
-
-            setTasks(validTasks);
-            setProjects(validProjects);
-        } catch (err: any) {
-            console.error('Error fetching data:', err);
-            setError(err.response?.data?.message || 'Failed to fetch data');
-        } finally {
-            setLoading(false);
-        }
         try {
             await apiManager.task.updateStatus(taskId, newStatus);
 

@@ -38,3 +38,7 @@
 ## 2025-11-18:
 
 - Created layout config to make it easier to change the layout of the project boards.
+
+## 2025-11-19:
+
+- Fixed error introduced yesterday.
