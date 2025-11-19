@@ -66,8 +66,16 @@ class UserController extends Controller
     public function updatePassword(Request $request, User $user)
     {
         $request->validate([
+            'current_password' => ['required'],
             'password' => self::getPasswordRequirements()
         ]);
+
+        // Check if the current password is correct
+        $correctPassword = Hash::check($request->current_password, $user->password);
+
+        if ($correctPassword === false) {
+            return response()->json(['message' => 'Current password is incorrect', 'errors' => ['current_password' => 'The password is incorrect']], 422);
+        }
 
         $user->password = Hash::make($request->password);
         $user->save();
