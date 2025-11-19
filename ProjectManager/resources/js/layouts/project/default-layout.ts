@@ -12,7 +12,7 @@ export const defaultLayout = {
     showTasks: true,
     showProjects: true,
     showOnlyAssignedToMe: false,
-    showOnlyCreatedByMe: true,
+    showOnlyCreatedByMe: false,
     filter: [],
 }
 
