@@ -27,5 +27,3 @@ Route::middleware(['auth', 'verified'])->group(function () {
         return Inertia::render('user/profile');
     });
 });
-
-require __DIR__.'/settings.php';
