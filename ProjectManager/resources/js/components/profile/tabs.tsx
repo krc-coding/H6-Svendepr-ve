@@ -6,7 +6,6 @@ import { cn } from '@/lib/utils';
 import { type PropsWithChildren } from 'react';
 import Profile from "@/components/profile/profile";
 import Password from "@/components/profile/password";
-import TwoFactor from "@/components/profile/two-factor";
 
 type TabItem = { title: string; disabled: boolean };
 
@@ -19,14 +18,6 @@ const tabItems: TabItem[] = [
         title: 'Password',
         disabled: false
     },
-    {
-        title: 'Two-Factor Auth',
-        disabled: false
-    },
-    {
-        title: 'Appearance',
-        disabled: true
-    },
 ];
 
 const Tabs = ({ children }: PropsWithChildren) => {
@@ -37,8 +28,6 @@ const Tabs = ({ children }: PropsWithChildren) => {
             return <Profile />;
         } else if (activeTab === 'password') {
             return <Password />;
-        // } else if (activeTab === 'two-factor auth') {
-        //     return <TwoFactor />;
         }
     }
 
