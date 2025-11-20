@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Attributes\ScopedBy;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
@@ -75,7 +76,12 @@ class User extends Authenticatable
 
     public function tasks(): HasMany
     {
-        return $this->hasMany(Tasks::class, 'device_id');
+        return $this->hasMany(Tasks::class, 'created_by');
+    }
+
+    public function assignedToTask(): BelongsToMany
+    {
+        return $this->belongsToMany(Tasks::class, 'tasks_users');
     }
 
     public function projects(): HasMany

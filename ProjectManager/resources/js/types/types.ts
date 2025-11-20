@@ -6,6 +6,7 @@ export interface ITask {
     "project_id"?: IProject["id"] | null;
     "created_by"?: IUser["id"];
     "due_date": string;
+    "assigned_users"?: number[];
     "created_at"?: string;
     "updated_at"?: string;
 }

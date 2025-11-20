@@ -3,10 +3,11 @@ import { apiManager } from '@/lib/api-manager';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ITask } from '@/types/types';
+import { ITask, IUser } from '@/types/types';
 import { SharedData } from "@/types";
 import { usePage } from "@inertiajs/react";
 import DateTimePicker from "@/components/ui/date-time-picker";
+import MultiSelectDropdown, { Items } from "@/components/ui/multi-select-dropdown";
 
 interface TaskProps {
     open: boolean;
@@ -14,7 +15,7 @@ interface TaskProps {
     projectId: number | null;
     onClose: () => void;
     onCreate: (task: ITask) => void;
-    onUpdate: (task: ITask) => void;
+    onUpdate: (task: ITask, assigned_users: number[]) => void;
     onDelete: () => void;
 }
 
@@ -23,14 +24,35 @@ const TaskCreateModal = (props: TaskProps) => {
     const [title, setTitle] = useState<string>("");
     const [description, setDescription] = useState<string>("");
     const [dueDate, setDueDate] = useState<string>("");
+    const [assignTo, setAssignTo] = useState<number[]>([]);
+    const [users, setUsers] = useState<Items[]>([]);
     const { auth } = usePage<SharedData>().props;
     const userId = auth.user.id;
+
+    useEffect(() => {
+        const getUsers = async () => {
+            try {
+                const usersResponse = await apiManager.user.getAll();
+                const items: Items[] = usersResponse.data.map((user: IUser): Items => ({
+                    id: user.id ?? 0,
+                    name: user.display_name ?? "",
+                }));
+                setUsers(items);
+            }
+            catch (e) {
+                console.log("Error geting user: " + e);
+            }
+        }
+
+        getUsers();
+    }, []);
 
     useEffect(() => {
         if (oldTask) {
             setTitle(oldTask.title);
             setDescription(oldTask.description);
             setDueDate(oldTask.due_date);
+            setAssignTo(oldTask.assigned_users || []);
         }
     }, [oldTask]);
 
@@ -44,6 +66,7 @@ const TaskCreateModal = (props: TaskProps) => {
             status: "Open", // We don't have blocked yet
             project_id: projectId,
             created_by: userId,
+            assigned_users: assignTo,
         };
 
         try {
@@ -53,7 +76,7 @@ const TaskCreateModal = (props: TaskProps) => {
             }
             else if (oldTask?.id !== undefined) {
                 const response = await apiManager.task.update(oldTask?.id, task);
-                onUpdate(response.data.data)
+                onUpdate(response.data.data, assignTo);
             }
 
             CloseModal();
@@ -71,6 +94,10 @@ const TaskCreateModal = (props: TaskProps) => {
 
     const handleDelete = async (e: { preventDefault: () => void; }) => {
         onDelete();
+    }
+
+    function toggleIfAssignedTo(ids: number[]) {
+        setAssignTo(ids);
     }
 
     return (
@@ -108,6 +135,17 @@ const TaskCreateModal = (props: TaskProps) => {
                     <DateTimePicker
                         firstTimeRender={oldTask?.due_date || null}
                         setDateTime={setDueDate} />
+
+                    {oldTask != null && (
+                        <div>
+                            <label>Assign users</label>
+                            <MultiSelectDropdown
+                                items={users}
+                                selected={assignTo}
+                                onChange={toggleIfAssignedTo}
+                            />
+                        </div>
+                    )}
 
                     <div className="mt-6 flex space-x-2 justify-center">
                         {oldTask != null && (
