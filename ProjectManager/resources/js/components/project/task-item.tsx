@@ -7,10 +7,11 @@ interface TaskItemProps {
     task: ITask;
     getProjectName: (projectId: number | null | undefined) => string | null | undefined;
     formatDate: (dateString: string) => string;
+    onClick: (task: ITask) => void;
 }
 
 const TaskItem = (props: TaskItemProps) => {
-    const {task, getProjectName, formatDate} = props;
+    const {task, getProjectName, formatDate, onClick} = props;
 
     const getStatusBadgeColor = (status: string) => {
         switch (status) {
@@ -25,10 +26,6 @@ const TaskItem = (props: TaskItemProps) => {
         }
     }
 
-    const handleTaskClick = (task: ITask) => {
-        console.log('Task clicked:', task);
-    }
-
     function isOverdue(due_date: string) {
         return false;
     }
@@ -39,7 +36,7 @@ const TaskItem = (props: TaskItemProps) => {
             className={`hover:shadow-md transition-shadow cursor-pointer ${
                 task.status === 'Blocked' ? 'border-orange-200 bg-orange-50' : ''
             }`}
-            onClick={() => handleTaskClick(task)}
+            onClick={() => onClick(task)}
         >
             <CardHeader className="pb-2">
                 <div className="flex items-center justify-between">

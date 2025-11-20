@@ -6,10 +6,11 @@ import {Badge} from "@/components/ui/badge";
 interface ProjectItemProps {
     project: IProject;
     formatDate: (dateString: string) => string;
+    onClick: (project: IProject) => void;
 }
 
 const ProjectItem = (props: ProjectItemProps) => {
-    const {project, formatDate} = props;
+    const {project, formatDate, onClick} = props;
 
     const getStatusBadgeColor = (status: string) => {
         switch (status) {
@@ -24,10 +25,6 @@ const ProjectItem = (props: ProjectItemProps) => {
         }
     }
 
-    const handleProjectClick = (project: IProject) => {
-        console.log('Project clicked:', project);
-    }
-
     function isOverdue(due_date: string) {
         return false;
     }
@@ -36,7 +33,7 @@ const ProjectItem = (props: ProjectItemProps) => {
         <Card
             key={`project-${project.id}`}
             className="hover:shadow-md transition-shadow cursor-pointer"
-            onClick={() => handleProjectClick(project)}
+            onClick={() => onClick(project)}
         >
             <CardHeader className="pb-2">
                 <div className="flex items-center justify-between">

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { apiManager } from '@/lib/api-manager';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -10,17 +10,28 @@ import { SharedData } from "@/types";
 
 interface ProjectProps {
     open: boolean;
+    oldProject: IProject | null;
     onClose: () => void;
-    OnCreate: (project: IProject) => void;
+    onCreate: (project: IProject) => void;
+    onUpdate: (project: IProject) => void;
+    onDelete: (project: IProject) => void;
 }
 
 const ProjectCreateModal = (props: ProjectProps) => {
-    const { open, onClose, OnCreate } = props;
+    const { open, oldProject, onClose, onCreate, onUpdate, onDelete } = props;
     const [name, setName] = useState<string>("");
     const [description, setDescription] = useState<string>("");
     const [dueDate, setDueDate] = useState<string>("");
     const { auth } = usePage<SharedData>().props;
     const userId = auth.user.id;
+
+    useEffect(() => {
+        if (oldProject) {
+            setName(oldProject.name);
+            setDescription(oldProject.description);
+            setDueDate(oldProject.due_date);
+        }
+    }, [oldProject]);
 
     const handleSubmit = async (e: { preventDefault: () => void; }) => {
         e.preventDefault();
@@ -34,8 +45,15 @@ const ProjectCreateModal = (props: ProjectProps) => {
         };
 
         try {
-            const response = await apiManager.project.create(project);
-            OnCreate(response.data.data);
+            if (oldProject == null) {
+                const response = await apiManager.project.create(project);
+                onCreate(response.data.data);
+            }
+            else if (oldProject?.id !== undefined) {
+                const response = await apiManager.project.update(oldProject?.id, project);
+                onUpdate(response.data.data);
+            }
+
             CloseModal();
         }
         catch (error) {
@@ -53,7 +71,9 @@ const ProjectCreateModal = (props: ProjectProps) => {
         <Dialog open={open} onOpenChange={CloseModal}>
             <DialogContent className="bg-[#10101f] rounded-lg p-6">
                 <DialogHeader>
-                    <DialogTitle>Create project</DialogTitle>
+                    <DialogTitle>
+                        {oldProject ? "Update: " + oldProject.name : "Create project"}
+                    </DialogTitle>
                 </DialogHeader>
 
                 <form onSubmit={handleSubmit} className="space-y-4 max-w-md mx-auto p-4">
@@ -81,16 +101,34 @@ const ProjectCreateModal = (props: ProjectProps) => {
                         />
                     </div>
 
-                    <DateTimePicker setDateTime={setDueDate} />
+                    <DateTimePicker
+                        firstTimeRender={oldProject?.due_date || null}
+                        setDateTime={setDueDate} />
 
                     <div className="mt-6 flex space-x-2 justify-center">
+                        {oldProject != null && (
+                            <Button
+                                type="button"
+                                onClick={() => onDelete(oldProject)}
+                                className="bg-red-500 hover:bg-red-600 text-white"
+                            >
+                                Delete
+                            </Button>
+                        )}
+
+                        <Button
+                            type="button"
+                            onClick={CloseModal}
+                            className="bg-gray-400 hover:bg-gray-300"
+                        >
+                            {oldProject ? "Cancel" : "Close"}
+                        </Button>
                         <Button
                             type="submit"
-                            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold"
+                            className="bg-blue-600 hover:bg-blue-700 text-white"
                         >
-                            Submit
+                            {oldProject ? "Save" : "Submit"}
                         </Button>
-                        <Button onClick={CloseModal}>Close</Button>
                     </div>
                 </form>
             </DialogContent>
