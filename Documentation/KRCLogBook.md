@@ -46,3 +46,7 @@
 - Removed delete user in profile page.
 - Removed vite wayfinder package.
 - Removed unused settings pages and routes.
+
+## 2025-11-20:
+
+- Finalized removing starter kit route system.
