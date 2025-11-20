@@ -9,6 +9,8 @@ interface ProjectBoardProps {
     projects: IProject[];
     onTaskStatusUpdate?: (taskId: number, newStatus: string) => void;
     onProjectStatusUpdate?: (projectId: number, newStatus: string) => void;
+    onTaskClicked: (task: ITask) => void;
+    onProjectClicked: (project: IProject) => void;
     layout: ProjectLayout;
 }
 
@@ -20,7 +22,8 @@ const statusColumns = [
     {id: 'Cancelled', title: 'Cancelled', color: 'bg-red-100'},
 ];
 
-export function ProjectBoard({tasks, projects, onTaskStatusUpdate, onProjectStatusUpdate, layout}: ProjectBoardProps) {
+export function ProjectBoard({tasks, projects, onTaskStatusUpdate, onProjectStatusUpdate, onTaskClicked, onProjectClicked, layout}
+    : ProjectBoardProps) {
     const [tasksByStatus, setTasksByStatus] = useState<Record<string, ITask[]>>({});
     const [projectsByStatus, setProjectsByStatus] = useState<Record<string, IProject[]>>({});
 
@@ -49,14 +52,6 @@ export function ProjectBoard({tasks, projects, onTaskStatusUpdate, onProjectStat
         if (!projectId) return null;
         const project = projects.find(p => p.id === projectId);
         return project?.name;
-    };
-
-    const handleTaskClick = (task: ITask) => {
-        console.log('Task clicked:', task);
-    };
-
-    const handleProjectClick = (project: IProject) => {
-        console.log('Project clicked:', project);
     };
 
     const getStatusBadgeColor = (status: string) => {
@@ -97,13 +92,14 @@ export function ProjectBoard({tasks, projects, onTaskStatusUpdate, onProjectStat
                         <div className="space-y-3">
                             {/* Render Projects*/}
                             {layout.showProjects && projectsInColumn.map((project) => (
-                                <ProjectItem project={project} formatDate={formatDate} key={'project-' + project.id}/>
+                                <ProjectItem project={project} formatDate={formatDate} onClick={onProjectClicked} 
+                                             key={'project-' + project.id}/>
                             ))}
 
                             {/* Render Tasks */}
                             {layout.showTasks && tasksInColumn.map((task) => (
                                 <TaskItem task={task} formatDate={formatDate} getProjectName={getProjectName}
-                                          key={'task-' + task.id}/>
+                                          onClick={onTaskClicked} key={'task-' + task.id}/>
                             ))}
 
                             {/* Empty state for columns */}

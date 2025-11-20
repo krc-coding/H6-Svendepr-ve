@@ -9,6 +9,7 @@ import TaskCreateModal from '@/components/task-create';
 import ProjectCreateModal from '@/components/project-create';
 import {defaultLayout, ProjectLayout} from "@/layouts/project/default-layout";
 import type {SharedData} from "@/types";
+import DeleteConfirmationModal from "@/components/delete-confirmation"
 
 export default function ProjectBoardPage() {
     const {auth} = usePage<SharedData>().props;
@@ -18,7 +19,10 @@ export default function ProjectBoardPage() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [isTaskCreateModalOpen, setIsTaskCreateModalOpen] = useState(false);
+    const [taskUpdate, setTaskUpdate] = useState<ITask | null>(null);
     const [isProjectCreateModalOpen, setIsProjectCreateModalOpen] = useState(false);
+    const [projectUpdate, setProjectUpdate] = useState<IProject | null>(null);
+    const [isDeleteConfirmationModalOpen, setIsDeleteConfirmationModalOpen] = useState(false);
     const [layout, setLayout] = useState<ProjectLayout>(defaultLayout);
 
     useEffect(() => {
@@ -46,7 +50,6 @@ export default function ProjectBoardPage() {
                         //     shouldShow = true;
                     }
 
-
                     if (!shouldShow) return false;
                     shouldShow = Object.values(TASK_STATUS).includes(task.status as any);
                     return shouldShow;
@@ -63,8 +66,8 @@ export default function ProjectBoardPage() {
                     //     shouldShow = true;
                     // }
 
-
-                    if (!shouldShow) return false;
+                    // // This make a error where i can't see any project from the server
+                    // if (!shouldShow) return false; 
                     shouldShow = Object.values(PROJECT_STATUS).includes(project.status as any)
                     return shouldShow;
                 });
@@ -81,6 +84,7 @@ export default function ProjectBoardPage() {
 
         fetchData();
     }, []);
+
     const handleTaskStatusUpdate = async (taskId: number, newStatus: string) => {
         try {
             await apiManager.task.updateStatus(taskId, newStatus);
@@ -111,28 +115,92 @@ export default function ProjectBoardPage() {
         }
     };
 
-    const openCreateTask = () => {
+    const openCreateTask = (oldTask: ITask | null = null) => {
+        setTaskUpdate(oldTask);
         setIsTaskCreateModalOpen(true);
     }
 
     const closeCreateTask = () => {
         setIsTaskCreateModalOpen(false);
+        setTaskUpdate(null);
     }
 
     const onCreatedNewTask = (newTask: ITask) => {
-        setTasks((prevTask) => [...prevTask, newTask]);
+        setTasks((prevTasks) => [...prevTasks, newTask]);
     }
 
-    const openCreateProject = () => {
+    const onTaskUpdated = (updatedTask: ITask) => {
+        setTasks((prevTasks) =>
+            prevTasks.map(task =>
+                task.id === updatedTask.id ? updatedTask : task
+            )
+        );
+    }
+
+    const openCreateProject = (oldProject: IProject | null = null) => {
+        setProjectUpdate(oldProject);
         setIsProjectCreateModalOpen(true);
     }
 
     const closeCreateProject = () => {
         setIsProjectCreateModalOpen(false);
+        setProjectUpdate(null);
     }
 
     const onCreatedNewProject = (newProject: IProject) => {
         setProjects((prevProjects) => [...prevProjects, newProject]);
+    }
+
+    const onProjectUpdated = (updatedProject: IProject) => {
+        setProjects((prevProjects) =>
+            prevProjects.map(project =>
+                project.id === updatedProject.id ? updatedProject : project
+            )
+        );
+    }
+
+    const openDeleteTaskConfirmation = () => {
+        setIsTaskCreateModalOpen(false);
+        setIsDeleteConfirmationModalOpen(true);
+    }
+
+    const openDeleteProjectConfirmation = (project: IProject) => {
+        setIsProjectCreateModalOpen(false);
+        setIsDeleteConfirmationModalOpen(true);
+    }
+
+    const closeConfirmModal = () => {
+        setIsDeleteConfirmationModalOpen(false);
+        setTaskUpdate(null);
+        setProjectUpdate(null);
+    }
+
+    const OnConfirm = () => {
+        if (taskUpdate) {
+            deleteTask();
+        }
+
+        if (projectUpdate) {
+            deleteProject();
+        }
+    }
+
+    const deleteTask = async () => {
+        await apiManager.task.delete(taskUpdate?.id || 0);
+        setTasks((prevTasks) =>
+            prevTasks.filter((task) =>
+                task.id !== taskUpdate?.id
+            )
+        );
+    }
+
+    const deleteProject = async () => {
+        await apiManager.project.delete(projectUpdate?.id || 0);
+        setTasks((prevProjects) =>
+            prevProjects.filter((project) =>
+                project.id !== projectUpdate?.id
+            )
+        );
     }
 
     if (loading) {
@@ -204,13 +272,13 @@ export default function ProjectBoardPage() {
                             <div className='flex space-x-2'>
                                 <Button
                                     className="bg-[#fafafa] hover:bg-[#e7e8ecf3]"
-                                    onClick={openCreateProject}
+                                    onClick={() => openCreateProject()}
                                 >
                                     Create project
                                 </Button>
                                 <Button
                                     className="bg-[#fafafa] hover:bg-[#e7e8ecf3]"
-                                    onClick={openCreateTask}
+                                    onClick={() => openCreateTask()}
                                 >
                                     Create task
                                 </Button>
@@ -224,21 +292,35 @@ export default function ProjectBoardPage() {
                     projects={projects}
                     onTaskStatusUpdate={handleTaskStatusUpdate}
                     onProjectStatusUpdate={handleProjectStatusUpdate}
+                    onTaskClicked={openCreateTask}
+                    onProjectClicked={openCreateProject}
                     layout={defaultLayout}
                 />
             </div>
 
             <TaskCreateModal
                 open={isTaskCreateModalOpen}
+                oldTask={taskUpdate}
                 projectId={null}
                 onClose={closeCreateTask}
-                OnCreate={onCreatedNewTask}
+                onCreate={onCreatedNewTask}
+                onUpdate={onTaskUpdated}
+                onDelete={openDeleteTaskConfirmation}
             />
 
             <ProjectCreateModal
                 open={isProjectCreateModalOpen}
+                oldProject={projectUpdate}
                 onClose={closeCreateProject}
-                OnCreate={onCreatedNewProject}
+                onCreate={onCreatedNewProject}
+                onUpdate={onProjectUpdated}
+                onDelete={openDeleteProjectConfirmation}
+            />
+
+            <DeleteConfirmationModal
+                open={isDeleteConfirmationModalOpen}
+                onConfirm={OnConfirm}
+                onClose={closeConfirmModal}
             />
         </AppLayout>
     );

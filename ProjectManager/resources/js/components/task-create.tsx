@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { apiManager } from '@/lib/api-manager';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -10,18 +10,29 @@ import DateTimePicker from "@/components/ui/date-time-picker";
 
 interface TaskProps {
     open: boolean;
+    oldTask: ITask | null;
     projectId: number | null;
     onClose: () => void;
-    OnCreate: (task: ITask) => void;
+    onCreate: (task: ITask) => void;
+    onUpdate: (task: ITask) => void;
+    onDelete: () => void;
 }
 
 const TaskCreateModal = (props: TaskProps) => {
-    const { open, projectId, onClose, OnCreate } = props;
+    const { open, oldTask, projectId, onClose, onCreate, onUpdate, onDelete } = props;
     const [title, setTitle] = useState<string>("");
     const [description, setDescription] = useState<string>("");
     const [dueDate, setDueDate] = useState<string>("");
     const { auth } = usePage<SharedData>().props;
     const userId = auth.user.id;
+
+    useEffect(() => {
+        if (oldTask) {
+            setTitle(oldTask.title);
+            setDescription(oldTask.description);
+            setDueDate(oldTask.due_date);
+        }
+    }, [oldTask]);
 
     const handleSubmit = async (e: { preventDefault: () => void; }) => {
         e.preventDefault();
@@ -36,8 +47,15 @@ const TaskCreateModal = (props: TaskProps) => {
         };
 
         try {
-            const response = await apiManager.task.create(task);
-            OnCreate(response.data.data);
+            if (oldTask == null) {
+                const response = await apiManager.task.create(task);
+                onCreate(response.data.data);
+            }
+            else if (oldTask?.id !== undefined) {
+                const response = await apiManager.task.update(oldTask?.id, task);
+                onUpdate(response.data.data)
+            }
+
             CloseModal();
         }
         catch (error) {
@@ -51,11 +69,15 @@ const TaskCreateModal = (props: TaskProps) => {
         onClose();
     }
 
+    const handleDelete = async (e: { preventDefault: () => void; }) => {
+        onDelete();
+    }
+
     return (
         <Dialog open={open} onOpenChange={CloseModal}>
             <DialogContent className="bg-[#10101f] rounded-lg p-6">
                 <DialogHeader>
-                    <DialogTitle>Create task</DialogTitle>
+                    <DialogTitle>{oldTask ? "Update: " + oldTask.title : "Create task"}</DialogTitle>
                 </DialogHeader>
 
                 <form onSubmit={handleSubmit} className="space-y-4 max-w-md mx-auto p-4">
@@ -83,16 +105,34 @@ const TaskCreateModal = (props: TaskProps) => {
                         />
                     </div>
 
-                    <DateTimePicker setDateTime={setDueDate} />
+                    <DateTimePicker
+                        firstTimeRender={oldTask?.due_date || null}
+                        setDateTime={setDueDate} />
 
                     <div className="mt-6 flex space-x-2 justify-center">
+                        {oldTask != null && (
+                            <Button
+                                type="button"
+                                onClick={handleDelete}
+                                className="bg-red-500 hover:bg-red-600 text-white"
+                            >
+                                Delete
+                            </Button>
+                        )}
+
+                        <Button
+                            type="button"
+                            onClick={CloseModal}
+                            className="bg-gray-300 hover:bg-gray-400"
+                        >
+                            {oldTask ? "Cancel" : "Close"}
+                        </Button>
                         <Button
                             type="submit"
-                            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold"
+                            className="bg-blue-600 hover:bg-blue-700 text-white"
                         >
-                            Submit
+                            {oldTask ? "Save" : "Submit"}
                         </Button>
-                        <Button onClick={CloseModal}>Close</Button>
                     </div>
                 </form>
             </DialogContent>
