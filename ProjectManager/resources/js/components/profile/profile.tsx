@@ -1,21 +1,18 @@
 import React from "react";
 import HeadingSmall from "@/components/heading-small";
-import {Form, Link, useForm, usePage} from "@inertiajs/react";
+import {Form, useForm, usePage} from "@inertiajs/react";
 import {Label} from "@/components/ui/label";
 import {Input} from "@/components/ui/input";
 import InputError from "@/components/input-error";
-import {send} from "@/routes/verification";
 import {Button} from "@/components/ui/button";
 import {Transition} from "@headlessui/react";
-import DeleteUser from "@/components/delete-user";
 import type {SharedData} from "@/types";
 import {apiManager} from "@/lib/api-manager";
+import {IUser} from "@/types/types";
 
 const Profile = () => {
-    const mustVerifyEmail = true;
-    const status = "";
-    const { auth } = usePage<SharedData>().props;
-    const [user, setUser] = React.useState<any>(auth.user);
+    const {auth} = usePage<SharedData>().props;
+    const [user, setUser] = React.useState<IUser>(auth.user);
     const {data, setData} = useForm(
         {
             display_name: user.display_name,
@@ -23,8 +20,8 @@ const Profile = () => {
         },
     );
 
-    const saveChanges = () => {
-        console.log(data);
+    const saveChanges = (event: any) => {
+        event.preventDefault();
         apiManager.user.update(auth.user.id, {
             ...auth.user,
             ...data
@@ -46,7 +43,7 @@ const Profile = () => {
                 />
 
                 <Form
-                    onSubmitCapture={saveChanges}
+                    onSubmit={saveChanges}
                     options={{
                         preserveScroll: true,
                     }}
@@ -110,34 +107,6 @@ const Profile = () => {
                                     message={errors.email}
                                 />
                             </div>
-
-                            {mustVerifyEmail &&
-                                auth.user.email_verified_at === null && (
-                                    <div>
-                                        <p className="-mt-4 text-sm text-muted-foreground">
-                                            Your email address is
-                                            unverified.{' '}
-                                            <Link
-                                                href={send()}
-                                                as="button"
-                                                className="text-foreground underline decoration-neutral-300 underline-offset-4 transition-colors duration-300 ease-out hover:decoration-current! dark:decoration-neutral-500"
-                                            >
-                                                Click here to resend the
-                                                verification email.
-                                            </Link>
-                                        </p>
-
-                                        {status ===
-                                            'verification-link-sent' && (
-                                                <div className="mt-2 text-sm font-medium text-green-600">
-                                                    A new verification link has
-                                                    been sent to your email
-                                                    address.
-                                                </div>
-                                            )}
-                                    </div>
-                                )}
-
                             <div className="grid gap-2">
                                 <Label htmlFor="role">Role</Label>
 
@@ -179,8 +148,6 @@ const Profile = () => {
                     )}
                 </Form>
             </div>
-
-            <DeleteUser/>
         </>
     );
 };

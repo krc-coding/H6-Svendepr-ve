@@ -42,3 +42,11 @@
 ## 2025-11-19:
 
 - Fixed error introduced yesterday.
+- Refactored password reset page, be able to remove starter kit route management system.
+- Removed delete user in profile page.
+- Removed vite wayfinder package.
+- Removed unused settings pages and routes.
+
+## 2025-11-20:
+
+- Finalized removing starter kit route system.
