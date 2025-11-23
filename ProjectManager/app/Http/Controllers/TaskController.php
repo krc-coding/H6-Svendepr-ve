@@ -10,11 +10,14 @@ class TaskController extends Controller
 {
     public function getAllTasks()
     {
-        return Tasks::all()->mapInto(TaskResource::class);
+        return Tasks::with('assignedTo')
+            ->get()
+            ->mapInto(TaskResource::class);
     }
 
     public function getTask(Tasks $task)
     {
+        $task->load('assignedTo');
         return new TaskResource($task);
     }
 
@@ -50,11 +53,14 @@ class TaskController extends Controller
             'title' => 'required | string | max: 255',
             'description' => 'required | string',
             'due_date' => 'required | date | after_or_equal: today',
+            'assigned_users' => 'required | array',
+            'assigned_users.*' => 'exists:users,id'
         ]);
 
         $task->title = $request->title;
         $task->description = $request->description;
         $task->due_date = $request->due_date;
+        $task->assignedTo()->sync($request->assigned_users);
         $task->save();
 
         return new TaskResource($task);

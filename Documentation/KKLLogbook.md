@@ -24,3 +24,15 @@
 ### 17-11-25
 - Made task and project creation 
     - Had a problem, the project board wouldn't update
+
+### 18-11-25
+- Had a good night sleep
+
+### 19-11-25
+- Status meating
+- Made the edit for project and task
+- Start making a genetic delete modal, to confirm things.
+
+### 20-11-25
+- Finished making the confirm modal
+- Made user assign to task
