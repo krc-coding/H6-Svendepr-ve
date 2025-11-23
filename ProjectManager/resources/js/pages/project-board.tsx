@@ -10,10 +10,11 @@ import ProjectCreateModal from '@/components/project-create';
 import {defaultLayout, ProjectLayout} from "@/layouts/project/default-layout";
 import type {SharedData} from "@/types";
 import DeleteConfirmationModal from "@/components/delete-confirmation"
+import {DndProvider} from 'react-dnd'
+import {HTML5Backend} from 'react-dnd-html5-backend'
 
 export default function ProjectBoardPage() {
     const {auth} = usePage<SharedData>().props;
-
     const [tasks, setTasks] = useState<ITask[]>([]);
     const [projects, setProjects] = useState<IProject[]>([]);
     const [loading, setLoading] = useState(true);
@@ -25,64 +26,64 @@ export default function ProjectBoardPage() {
     const [isDeleteConfirmationModalOpen, setIsDeleteConfirmationModalOpen] = useState(false);
     const [layout, setLayout] = useState<ProjectLayout>(defaultLayout);
 
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                setLoading(true);
-                setError(null);
+    const fetchTasksAndProjects = async () => {
+        try {
+            setLoading(true);
+            setError(null);
 
-                const [tasksResponse, projectsResponse] = await Promise.all([
-                    apiManager.task.getAll(),
-                    apiManager.project.getAll()
-                ]);
+            const [tasksResponse, projectsResponse] = await Promise.all([
+                apiManager.task.getAll(),
+                apiManager.project.getAll()
+            ]);
 
-                // Filter out any tasks with invalid statuses
-                const validTasks = tasksResponse.data.filter((task: ITask) => {
-                    let shouldShow = false;
+            // Filter out any tasks with invalid statuses
+            const validTasks = tasksResponse.data.filter((task: ITask) => {
+                let shouldShow = false;
 
-                    if (layout.showOnlyCreatedByMe && task.created_by == auth.user.id) {
-                        shouldShow = true;
-                    } else if (!layout.showOnlyCreatedByMe) {
-                        shouldShow = true;
-                        // } else if (layout.showOnlyAssignedToMe && task.assigned_to == auth.user.id) {
-                        //     shouldShow = true;
-                        // } else if (!layout.showOnlyAssignedToMe) {
-                        //     shouldShow = true;
-                    }
-
-                    if (!shouldShow) return false;
-                    shouldShow = Object.values(TASK_STATUS).includes(task.status as any);
-                    return shouldShow;
-                });
-
-                // Filter out any projects with invalid statuses
-                const validProjects = projectsResponse.data.filter((project: IProject) => {
-                    let shouldShow = false;
-
-                    // We don't have created by on project elements, so we can't filter by it here
-                    // if (layout.showOnlyAssignedToMe && project.project_lead_id == auth.user.id) {
+                if (layout.showOnlyCreatedByMe && task.created_by == auth.user.id) {
+                    shouldShow = true;
+                } else if (!layout.showOnlyCreatedByMe) {
+                    shouldShow = true;
+                    // } else if (layout.showOnlyAssignedToMe && task.assigned_to == auth.user.id) {
                     //     shouldShow = true;
                     // } else if (!layout.showOnlyAssignedToMe) {
                     //     shouldShow = true;
-                    // }
+                }
 
-                    // // This make a error where i can't see any project from the server
-                    // if (!shouldShow) return false; 
-                    shouldShow = Object.values(PROJECT_STATUS).includes(project.status as any)
-                    return shouldShow;
-                });
+                if (!shouldShow) return false;
+                shouldShow = Object.values(TASK_STATUS).includes(task.status as any);
+                return shouldShow;
+            });
 
-                setTasks(validTasks);
-                setProjects(validProjects);
-            } catch (err: any) {
-                console.error('Error fetching data:', err);
-                setError(err.response?.data?.message || 'Failed to fetch data');
-            } finally {
-                setLoading(false);
-            }
-        };
+            // Filter out any projects with invalid statuses
+            const validProjects = projectsResponse.data.filter((project: IProject) => {
+                let shouldShow = false;
 
-        fetchData();
+                // We don't have created by on project elements, so we can't filter by it here
+                // if (layout.showOnlyAssignedToMe && project.project_lead_id == auth.user.id) {
+                //     shouldShow = true;
+                // } else if (!layout.showOnlyAssignedToMe) {
+                //     shouldShow = true;
+                // }
+
+                // // This make a error where i can't see any project from the server
+                // if (!shouldShow) return false;
+                shouldShow = Object.values(PROJECT_STATUS).includes(project.status as any)
+                return shouldShow;
+            });
+
+            setTasks(validTasks);
+            setProjects(validProjects);
+        } catch (err: any) {
+            console.error('Error fetching data:', err);
+            setError(err.response?.data?.message || 'Failed to fetch data');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchTasksAndProjects();
     }, []);
 
     const handleTaskStatusUpdate = async (taskId: number, newStatus: string) => {
@@ -287,15 +288,18 @@ export default function ProjectBoardPage() {
                     </div>
                 </header>
 
-                <ProjectBoard
-                    tasks={tasks}
-                    projects={projects}
-                    onTaskStatusUpdate={handleTaskStatusUpdate}
-                    onProjectStatusUpdate={handleProjectStatusUpdate}
-                    onTaskClicked={openCreateTask}
-                    onProjectClicked={openCreateProject}
-                    layout={defaultLayout}
-                />
+                <DndProvider backend={HTML5Backend}>
+                    <ProjectBoard
+                        tasks={tasks}
+                        projects={projects}
+                        onTaskStatusUpdate={handleTaskStatusUpdate}
+                        onProjectStatusUpdate={handleProjectStatusUpdate}
+                        onTaskClicked={openCreateTask}
+                        onProjectClicked={openCreateProject}
+                        layout={defaultLayout}
+                        refetchData={fetchTasksAndProjects}
+                    />
+                </DndProvider>
             </div>
 
             <TaskCreateModal

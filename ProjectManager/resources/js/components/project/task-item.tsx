@@ -2,16 +2,31 @@ import React from "react";
 import {ITask} from "@/types/types";
 import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "@/components/ui/card";
 import {Badge} from "@/components/ui/badge";
+import {useDrag} from "react-dnd";
+import {apiManager} from "@/lib/api-manager";
 
 interface TaskItemProps {
     task: ITask;
     getProjectName: (projectId: number | null | undefined) => string | null | undefined;
     formatDate: (dateString: string) => string;
     onClick: (task: ITask) => void;
+    refetchData: () => void;
 }
 
 const TaskItem = (props: TaskItemProps) => {
     const {task, getProjectName, formatDate, onClick} = props;
+    const [{isDragging}, drag] = useDrag(() => ({
+        type: "drop-item",
+        collect: monitor => ({
+            isDragging: monitor.isDragging(),
+        }),
+        end: (item, monitor) => {
+            const dropResult = monitor.getDropResult<{column: string}>();
+            if (task.status !== dropResult?.column && task.id) {
+                apiManager.task.updateStatus(task.id, dropResult?.column ?? task.status).then(() => props.refetchData());
+            }
+        }
+    }));
 
     const getStatusBadgeColor = (status: string) => {
         switch (status) {
@@ -33,9 +48,12 @@ const TaskItem = (props: TaskItemProps) => {
     return (
         <Card
             key={`task-${task.id}`}
+            // @ts-ignore
+            ref={drag}
             className={`hover:shadow-md transition-shadow cursor-pointer ${
                 task.status === 'Blocked' ? 'border-orange-200 bg-orange-50' : ''
             }`}
+            style={{opacity: isDragging ? 0.5 : 1}}
             onClick={() => onClick(task)}
         >
             <CardHeader className="pb-2">

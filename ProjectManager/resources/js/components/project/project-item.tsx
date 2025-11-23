@@ -2,15 +2,30 @@ import React from "react";
 import {IProject} from "@/types/types";
 import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "@/components/ui/card";
 import {Badge} from "@/components/ui/badge";
+import {useDrag} from "react-dnd";
+import {apiManager} from "@/lib/api-manager";
 
 interface ProjectItemProps {
     project: IProject;
     formatDate: (dateString: string) => string;
     onClick: (project: IProject) => void;
+    refetchData: () => void;
 }
 
 const ProjectItem = (props: ProjectItemProps) => {
     const {project, formatDate, onClick} = props;
+    const [{isDragging}, drag] = useDrag(() => ({
+        type: "drop-item",
+        collect: monitor => ({
+            isDragging: monitor.isDragging(),
+        }),
+        end: (item, monitor) => {
+            const dropResult = monitor.getDropResult<{column: string}>();
+            if (project.status !== dropResult?.column && project.id) {
+                apiManager.project.updateStatus(project.id, dropResult?.column ?? project.status).then(() => props.refetchData());
+            }
+        }
+    }));
 
     const getStatusBadgeColor = (status: string) => {
         switch (status) {
@@ -32,8 +47,11 @@ const ProjectItem = (props: ProjectItemProps) => {
     return (
         <Card
             key={`project-${project.id}`}
+            // @ts-ignore
+            ref={drag}
             className="hover:shadow-md transition-shadow cursor-pointer"
             onClick={() => onClick(project)}
+            style={{opacity: isDragging ? 0.5 : 1}}
         >
             <CardHeader className="pb-2">
                 <div className="flex items-center justify-between">
@@ -70,7 +88,7 @@ const ProjectItem = (props: ProjectItemProps) => {
                             </div>
                         )}
                         <div
-                            style={{ color: isOverdue(project.due_date) ? 'red' : 'inherit' }}
+                            style={{color: isOverdue(project.due_date) ? 'red' : 'inherit'}}
                             className={`text-xs ${isOverdue(project.due_date) ? 'font-medium' : ''}`}
                         >
                             Due: {formatDate(project.due_date)}
