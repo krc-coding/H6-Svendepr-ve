@@ -50,3 +50,8 @@
 ## 2025-11-20:
 
 - Finalized removing starter kit route system.
+- Started work on implementing drag and drop functionality.
+
+## 2025-11-21:
+
+- Finished basic drag and drop functionality.
