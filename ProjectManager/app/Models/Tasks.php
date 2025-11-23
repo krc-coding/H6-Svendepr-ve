@@ -6,6 +6,7 @@ use App\Models\Scopes\AccountScope;
 use Illuminate\Database\Eloquent\Attributes\ScopedBy;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 #[ScopedBy(AccountScope::class)]
 class Tasks extends Model
@@ -47,6 +48,11 @@ class Tasks extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(user::class);
+    }
+
+    public function assignedTo(): BelongsToMany
+    {
+        return $this->belongsToMany(user::class, 'tasks_users');
     }
 
     public function account(): BelongsTo

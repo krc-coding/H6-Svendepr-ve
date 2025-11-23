@@ -1,18 +1,18 @@
-import {useState, useEffect} from 'react';
-import {Head, usePage} from '@inertiajs/react';
-import {ProjectBoard} from '@/components/project/base-project';
-import {Button} from "@/components/ui/button";
-import {ITask, IProject, TASK_STATUS, PROJECT_STATUS} from '@/types/types';
-import {apiManager} from '@/lib/api-manager';
+import { useState, useEffect } from 'react';
+import { Head, usePage } from '@inertiajs/react';
+import { ProjectBoard } from '@/components/project/base-project';
+import { Button } from "@/components/ui/button";
+import { ITask, IProject, TASK_STATUS, PROJECT_STATUS } from '@/types/types';
+import { apiManager } from '@/lib/api-manager';
 import AppLayout from "@/layouts/app-layout";
 import TaskCreateModal from '@/components/task-create';
 import ProjectCreateModal from '@/components/project-create';
-import {defaultLayout, ProjectLayout} from "@/layouts/project/default-layout";
-import type {SharedData} from "@/types";
+import { defaultLayout, ProjectLayout } from "@/layouts/project/default-layout";
+import type { SharedData } from "@/types";
 import DeleteConfirmationModal from "@/components/delete-confirmation"
 
 export default function ProjectBoardPage() {
-    const {auth} = usePage<SharedData>().props;
+    const { auth } = usePage<SharedData>().props;
 
     const [tasks, setTasks] = useState<ITask[]>([]);
     const [projects, setProjects] = useState<IProject[]>([]);
@@ -91,7 +91,7 @@ export default function ProjectBoardPage() {
 
             setTasks(prevTasks =>
                 prevTasks.map(task =>
-                    task.id === taskId ? {...task, status: newStatus as any} : task
+                    task.id === taskId ? { ...task, status: newStatus as any } : task
                 )
             );
         } catch (err: any) {
@@ -106,7 +106,7 @@ export default function ProjectBoardPage() {
 
             setProjects(prevProjects =>
                 prevProjects.map(project =>
-                    project.id === projectId ? {...project, status: newStatus as any} : project
+                    project.id === projectId ? { ...project, status: newStatus as any } : project
                 )
             );
         } catch (err: any) {
@@ -129,7 +129,8 @@ export default function ProjectBoardPage() {
         setTasks((prevTasks) => [...prevTasks, newTask]);
     }
 
-    const onTaskUpdated = (updatedTask: ITask) => {
+    const onTaskUpdated = (updatedTask: ITask, assigned_users: number[]) => {
+        updatedTask.assigned_users = assigned_users;
         setTasks((prevTasks) =>
             prevTasks.map(task =>
                 task.id === updatedTask.id ? updatedTask : task
@@ -206,9 +207,9 @@ export default function ProjectBoardPage() {
     if (loading) {
         return (
             <AppLayout>
-                <Head title="Project Board"/>
+                <Head title="Project Board" />
 
-                <div className="min-h-screen" style={{backgroundColor: '#212830'}}>
+                <div className="min-h-screen" style={{ backgroundColor: '#212830' }}>
                     <header className="shadow-sm border-b">
                         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
                             <h1 className="text-2xl font-bold text-gray-900">Project Board</h1>
@@ -232,9 +233,9 @@ export default function ProjectBoardPage() {
     if (error) {
         return (
             <AppLayout>
-                <Head title="Project Board"/>
+                <Head title="Project Board" />
 
-                <div className="min-h-screen" style={{backgroundColor: '#212830'}}>
+                <div className="min-h-screen" style={{ backgroundColor: '#212830' }}>
                     <header className="shadow-sm border-b">
                         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
                             <h1 className="text-2xl font-bold text-gray-900">Project Board</h1>
@@ -263,8 +264,8 @@ export default function ProjectBoardPage() {
 
     return (
         <AppLayout>
-            <Head title="Project Board"/>
-            <div className="min-h-screen" style={{backgroundColor: '#212830'}}>
+            <Head title="Project Board" />
+            <div className="min-h-screen" style={{ backgroundColor: '#212830' }}>
                 <header className="shadow-sm border-b">
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
                         <div className="flex items-center justify-between">
