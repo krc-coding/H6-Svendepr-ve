@@ -16,7 +16,6 @@ class Tasks extends Model
     public const STATUS_IN_PROCESS = 'In process';
     public const STATUS_COMPLETED = 'Completed';
     public const STATUS_CANCELLED = 'Cancelled';
-    public const STATUS_BLOCKED = 'Blocked';
     // Custom enum end
 
     protected $fillable = [
@@ -36,7 +35,6 @@ class Tasks extends Model
             self::STATUS_IN_PROCESS,
             self::STATUS_COMPLETED,
             self::STATUS_CANCELLED,
-            self::STATUS_BLOCKED,
         ];
     }
 
@@ -58,5 +56,25 @@ class Tasks extends Model
     public function account(): BelongsTo
     {
         return $this->belongsTo(Account::class);
+    }
+
+    public function blocking(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            Tasks::class,
+            'task_dependencies',
+            'depends_on_task_id',
+            'task_id'
+        );
+    }
+
+    public function dependsOn(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            Tasks::class,
+            'task_dependencies',
+            'task_id',
+            'depends_on_task_id'
+        );
     }
 }

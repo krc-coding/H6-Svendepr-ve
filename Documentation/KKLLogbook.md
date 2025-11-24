@@ -36,3 +36,6 @@
 ### 20-11-25
 - Finished making the confirm modal
 - Made user assign to task
+
+### 24-11-25
+- Made task blocking other tasks

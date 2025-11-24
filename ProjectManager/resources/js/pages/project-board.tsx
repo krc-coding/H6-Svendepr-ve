@@ -303,6 +303,7 @@ export default function ProjectBoardPage() {
                 open={isTaskCreateModalOpen}
                 oldTask={taskUpdate}
                 projectId={null}
+                allTasks={tasks}
                 onClose={closeCreateTask}
                 onCreate={onCreatedNewTask}
                 onUpdate={onTaskUpdated}
