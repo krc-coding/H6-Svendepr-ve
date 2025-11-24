@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('task_dependencies', function (Blueprint $table) {
             $table->id();
             $table->foreignId('task_id')->constrained('tasks');
-            $table->foreignId('depends_on_task_id')->constrained('users');
+            $table->foreignId('depends_on_task_id')->constrained('tasks');
             $table->timestamps();
         });
     }
