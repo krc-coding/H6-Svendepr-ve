@@ -65,6 +65,13 @@ const TaskCreateModal = (props: TaskProps) => {
             setAssignTo(oldTask.assigned_users);
             setBlockingTasks(oldTask.depends_on);
         }
+        else {
+            setTitle("");
+            setDescription("");
+            setDueDate("");
+            setAssignTo([]);
+            setBlockingTasks([]);
+        }
     }, [oldTask]);
 
     const handleSubmit = async (e: { preventDefault: () => void; }) => {
@@ -91,18 +98,12 @@ const TaskCreateModal = (props: TaskProps) => {
                 onUpdate(response.data.data, assignTo);
             }
 
-            CloseModal();
+            onClose();
         }
         catch (error) {
             console.error("Error: ", error);
         }
     };
-
-    const CloseModal = () => {
-        setTitle("");
-        setDescription("");
-        onClose();
-    }
 
     const handleDelete = async (e: { preventDefault: () => void; }) => {
         onDelete();
@@ -117,7 +118,7 @@ const TaskCreateModal = (props: TaskProps) => {
     }
 
     return (
-        <Dialog open={open} onOpenChange={CloseModal}>
+        <Dialog open={open} onOpenChange={onClose}>
             <DialogContent className="bg-[#10101f] rounded-lg p-6">
                 <DialogHeader>
                     <DialogTitle>{oldTask ? "Update: " + oldTask.title : "Create task"}</DialogTitle>
@@ -185,7 +186,7 @@ const TaskCreateModal = (props: TaskProps) => {
 
                         <Button
                             type="button"
-                            onClick={CloseModal}
+                            onClick={onClose}
                             className="bg-gray-300 hover:bg-gray-400"
                         >
                             {oldTask ? "Cancel" : "Close"}

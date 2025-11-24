@@ -54,21 +54,15 @@ const ProjectCreateModal = (props: ProjectProps) => {
                 onUpdate(response.data.data);
             }
 
-            CloseModal();
+            onClose();
         }
         catch (error) {
             console.error("Error: ", error);
         }
-    };
-
-    const CloseModal = () => {
-        setName("");
-        setDescription("");
-        onClose();
     }
 
     return (
-        <Dialog open={open} onOpenChange={CloseModal}>
+        <Dialog open={open} onOpenChange={onClose}>
             <DialogContent className="bg-[#10101f] rounded-lg p-6">
                 <DialogHeader>
                     <DialogTitle>
@@ -118,7 +112,7 @@ const ProjectCreateModal = (props: ProjectProps) => {
 
                         <Button
                             type="button"
-                            onClick={CloseModal}
+                            onClick={onClose}
                             className="bg-gray-400 hover:bg-gray-300"
                         >
                             {oldProject ? "Cancel" : "Close"}
