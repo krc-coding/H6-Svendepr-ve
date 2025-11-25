@@ -45,12 +45,12 @@ class Tasks extends Model
 
     public function user(): BelongsTo
     {
-        return $this->belongsTo(user::class);
+        return $this->belongsTo(User::class);
     }
 
     public function assignedTo(): BelongsToMany
     {
-        return $this->belongsToMany(user::class, 'tasks_users');
+        return $this->belongsToMany(User::class, 'tasks_users');
     }
 
     public function account(): BelongsTo
