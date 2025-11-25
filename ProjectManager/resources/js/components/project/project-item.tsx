@@ -1,19 +1,20 @@
 import React from "react";
-import {IProject} from "@/types/types";
-import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "@/components/ui/card";
+import {IProject, IUser} from "@/types/types";
+import {Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle} from "@/components/ui/card";
 import {Badge} from "@/components/ui/badge";
 import {useDrag} from "react-dnd";
 import {apiManager} from "@/lib/api-manager";
 
 interface ProjectItemProps {
     project: IProject;
+    users: IUser[];
     formatDate: (dateString: string) => string;
     onClick: (project: IProject) => void;
     refetchData: () => void;
 }
 
 const ProjectItem = (props: ProjectItemProps) => {
-    const {project, formatDate, onClick} = props;
+    const {project, users, formatDate, onClick} = props;
     const [{isDragging}, drag] = useDrag(() => ({
         type: "drop-item",
         collect: monitor => ({
@@ -42,6 +43,23 @@ const ProjectItem = (props: ProjectItemProps) => {
 
     function isOverdue(due_date: string) {
         return false;
+    }
+
+    const getUsersAssigned = (): IUser[] => {
+        return users.filter(user => project.user_worked_in_project.includes(user.id));
+    }
+
+    const makeDisplayName = (display_name: string): string => {
+        const trimmed = display_name.trim();
+
+        // Take initials
+        if (trimmed.includes(" ")) {
+            const parts = trimmed.split(/\s+/);
+            return (parts[0][0] + (parts[1]?.[0] || "")).toUpperCase();
+        }
+
+        // Take first two letters
+        return trimmed.slice(0, 2);
     }
 
     return (
@@ -96,6 +114,19 @@ const ProjectItem = (props: ProjectItemProps) => {
                     </div>
                 </div>
             </CardContent>
+            {project.user_worked_in_project.length > 0 && (
+                <CardFooter className="text-sm">
+                    Workers:
+                    {getUsersAssigned().map(user => (
+                        <div
+                            className="m-1 text-sm"
+                            key={`project-${project.id}-user-display-${user.id}`}
+                        >
+                            {makeDisplayName(user.display_name ?? "No Name")}
+                        </div>
+                    ))}
+                </CardFooter>
+            )}
         </Card>
     );
 }

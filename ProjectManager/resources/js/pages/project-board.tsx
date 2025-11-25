@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Head, usePage } from '@inertiajs/react';
 import { ProjectBoard } from '@/components/project/base-project';
 import { Button } from "@/components/ui/button";
-import { ITask, IProject, TASK_STATUS, PROJECT_STATUS } from '@/types/types';
+import { ITask, IProject, TASK_STATUS, PROJECT_STATUS, IUser } from '@/types/types';
 import { apiManager } from '@/lib/api-manager';
 import AppLayout from "@/layouts/app-layout";
 import TaskCreateModal from '@/components/task-create';
@@ -17,6 +17,7 @@ export default function ProjectBoardPage() {
     const {auth} = usePage<SharedData>().props;
     const [tasks, setTasks] = useState<ITask[]>([]);
     const [projects, setProjects] = useState<IProject[]>([]);
+    const [users, setUsers] = useState<IUser[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [isTaskCreateModalOpen, setIsTaskCreateModalOpen] = useState(false);
@@ -27,63 +28,69 @@ export default function ProjectBoardPage() {
     const [layout, setLayout] = useState<ProjectLayout>(defaultLayout);
 
     const fetchTasksAndProjects = async () => {
-        try {
-            setLoading(true);
-            setError(null);
+        const [tasksResponse, projectsResponse] = await Promise.all([
+            apiManager.task.getAll(),
+            apiManager.project.getAll()
+        ]);
 
-            const [tasksResponse, projectsResponse] = await Promise.all([
-                apiManager.task.getAll(),
-                apiManager.project.getAll()
-            ]);
+        // Filter out any tasks with invalid statuses
+        const validTasks = tasksResponse.data.filter((task: ITask) => {
+            let shouldShow = false;
 
-            // Filter out any tasks with invalid statuses
-            const validTasks = tasksResponse.data.filter((task: ITask) => {
-                let shouldShow = false;
-
-                if (layout.showOnlyCreatedByMe && task.created_by == auth.user.id) {
-                    shouldShow = true;
-                } else if (!layout.showOnlyCreatedByMe) {
-                    shouldShow = true;
-                    // } else if (layout.showOnlyAssignedToMe && task.assigned_to == auth.user.id) {
-                    //     shouldShow = true;
-                    // } else if (!layout.showOnlyAssignedToMe) {
-                    //     shouldShow = true;
-                }
-
-                if (!shouldShow) return false;
-                shouldShow = Object.values(TASK_STATUS).includes(task.status as any);
-                return shouldShow;
-            });
-
-            // Filter out any projects with invalid statuses
-            const validProjects = projectsResponse.data.filter((project: IProject) => {
-                let shouldShow = false;
-
-                // We don't have created by on project elements, so we can't filter by it here
-                // if (layout.showOnlyAssignedToMe && project.project_lead_id == auth.user.id) {
+            if (layout.showOnlyCreatedByMe && task.created_by == auth.user.id) {
+                shouldShow = true;
+            } else if (!layout.showOnlyCreatedByMe) {
+                shouldShow = true;
+                // } else if (layout.showOnlyAssignedToMe && task.assigned_to == auth.user.id) {
                 //     shouldShow = true;
                 // } else if (!layout.showOnlyAssignedToMe) {
                 //     shouldShow = true;
-                // }
+            }
 
-                // // This make a error where i can't see any project from the server
-                // if (!shouldShow) return false;
-                shouldShow = Object.values(PROJECT_STATUS).includes(project.status as any)
-                return shouldShow;
-            });
+            if (!shouldShow) return false;
+            shouldShow = Object.values(TASK_STATUS).includes(task.status as any);
+            return shouldShow;
+        });
 
-            setTasks(validTasks);
-            setProjects(validProjects);
+        // Filter out any projects with invalid statuses
+        const validProjects = projectsResponse.data.filter((project: IProject) => {
+            let shouldShow = false;
+
+            // We don't have created by on project elements, so we can't filter by it here
+            // if (layout.showOnlyAssignedToMe && project.project_lead_id == auth.user.id) {
+            //     shouldShow = true;
+            // } else if (!layout.showOnlyAssignedToMe) {
+            //     shouldShow = true;
+            // }
+
+            // // This make a error where i can't see any project from the server
+            // if (!shouldShow) return false;
+            shouldShow = Object.values(PROJECT_STATUS).includes(project.status as any)
+            return shouldShow;
+        });
+
+        setTasks(validTasks);
+        setProjects(validProjects);
+        
+    };
+
+    const fetchUsers = async () => {
+        const userResponse = await apiManager.user.getAll();
+        setUsers(userResponse.data);
+    }
+
+    useEffect(() => {
+        try {
+            setLoading(true);
+            setError(null);
+            fetchTasksAndProjects();
+            fetchUsers();
         } catch (err: any) {
             console.error('Error fetching data:', err);
             setError(err.response?.data?.message || 'Failed to fetch data');
         } finally {
             setLoading(false);
         }
-    };
-
-    useEffect(() => {
-        fetchTasksAndProjects();
     }, []);
 
     const handleTaskStatusUpdate = async (taskId: number, newStatus: string) => {
@@ -293,6 +300,7 @@ export default function ProjectBoardPage() {
                     <ProjectBoard
                         tasks={tasks}
                         projects={projects}
+                        users={users}
                         onTaskStatusUpdate={handleTaskStatusUpdate}
                         onProjectStatusUpdate={handleProjectStatusUpdate}
                         onTaskClicked={openCreateTask}

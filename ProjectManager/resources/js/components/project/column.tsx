@@ -1,7 +1,7 @@
 import React from "react";
 import ProjectItem from "@/components/project/project-item";
 import TaskItem from "@/components/project/task-item";
-import {IProject, ITask} from "@/types/types";
+import {IProject, ITask, IUser} from "@/types/types";
 import {ProjectLayout} from "@/layouts/project/default-layout";
 import {useDrop} from "react-dnd";
 
@@ -9,6 +9,7 @@ interface ColumnProps {
     column: string;
     tasks: ITask[];
     projects: IProject[];
+    users: IUser[];
     onTaskClicked: (task: ITask) => void;
     onProjectClicked: (project: IProject) => void;
     layout: ProjectLayout;
@@ -16,7 +17,7 @@ interface ColumnProps {
 }
 
 const column = (props: ColumnProps) => {
-    const {column, tasks, projects, onProjectClicked, onTaskClicked, layout, refetchData} = props;
+    const {column, tasks, projects, users, onProjectClicked, onTaskClicked, layout, refetchData} = props;
     const totalItems = tasks.length + projects.length;
     const [, drop] = useDrop(() => ({
         accept: "drop-item",
@@ -48,6 +49,7 @@ const column = (props: ColumnProps) => {
                 {layout.showProjects && projects.map((project) => (
                     <ProjectItem
                         project={project}
+                        users={users}
                         formatDate={formatDate}
                         onClick={onProjectClicked}
                         key={'project-' + project.id}
