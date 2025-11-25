@@ -1,9 +1,9 @@
-import { useEffect, useState } from "react";
-import { apiManager } from '@/lib/api-manager';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { IProject, IUser } from '@/types/types';
+import {useEffect, useState} from "react";
+import {apiManager} from '@/lib/api-manager';
+import {Dialog, DialogContent, DialogHeader, DialogTitle} from "@/components/ui/dialog";
+import {Button} from "@/components/ui/button";
+import {Input} from "@/components/ui/input";
+import {IProject, IUser} from '@/types/types';
 import DateTimePicker from "@/components/ui/date-time-picker";
 
 interface ProjectProps {
@@ -16,7 +16,7 @@ interface ProjectProps {
 }
 
 const ProjectCreateModal = (props: ProjectProps) => {
-    const { open, oldProject, onClose, onCreate, onUpdate, onDelete } = props;
+    const {open, oldProject, onClose, onCreate, onUpdate, onDelete} = props;
     const [name, setName] = useState<string>("");
     const [description, setDescription] = useState<string>("");
     const [dueDate, setDueDate] = useState<string>("");
@@ -28,8 +28,7 @@ const ProjectCreateModal = (props: ProjectProps) => {
             try {
                 const usersResponse = await apiManager.user.getAllProjectManagers();
                 setUsers(usersResponse.data);
-            }
-            catch (e) {
+            } catch (e) {
                 console.log("Error geting user: " + e);
             }
         }
@@ -43,14 +42,12 @@ const ProjectCreateModal = (props: ProjectProps) => {
             setDescription(oldProject.description);
             setDueDate(oldProject.due_date);
 
-            if (users.some(u => u.id === oldProject.project_lead_id)){
+            if (users.some(u => u.id === oldProject.project_lead_id)) {
                 setProjectManager(oldProject.project_lead_id || 0);
-            }
-            else {
+            } else {
                 setProjectManager(0);
             }
-        }
-        else {
+        } else {
             setName("");
             setDescription("");
             setDueDate("");
@@ -73,17 +70,20 @@ const ProjectCreateModal = (props: ProjectProps) => {
             if (oldProject == null) {
                 const response = await apiManager.project.create(project);
                 onCreate(response.data.data);
-            }
-            else if (oldProject?.id !== undefined) {
+            } else if (oldProject?.id !== undefined) {
                 const response = await apiManager.project.update(oldProject?.id, project);
                 onUpdate(response.data.data);
             }
 
             onClose();
-        }
-        catch (error) {
+        } catch (error) {
             console.error("Error: ", error);
         }
+    }
+
+    const openProject = (projectId?: number) => {
+        if (!projectId) return;
+        window.open(`/projects/${projectId}`, '_self');
     }
 
     return (
@@ -154,6 +154,18 @@ const ProjectCreateModal = (props: ProjectProps) => {
                             ))}
                         </select>
                     </div>
+
+                    {oldProject && (
+                        <div className="mt-6 flex space-x-2 justify-center">
+                            <Button
+                                type="button"
+                                onClick={() => openProject(oldProject.id)}
+                                className="bg-blue-500 hover:bg-blue-600 text-white"
+                            >
+                                Open project
+                            </Button>
+                        </div>
+                    )}
 
                     <div className="mt-6 flex space-x-2 justify-center">
                         {oldProject != null && (
