@@ -10,14 +10,14 @@ class TaskController extends Controller
 {
     public function getAllTasks()
     {
-        return Tasks::with('assignedTo')
+        return Tasks::with(['assignedTo', 'dependsOn'])
             ->get()
             ->mapInto(TaskResource::class);
     }
 
     public function getTask(Tasks $task)
     {
-        $task->load('assignedTo');
+        $task->load(['assignedTo', 'dependedBy']);
         return new TaskResource($task);
     }
 
@@ -32,6 +32,8 @@ class TaskController extends Controller
             'project_id' => 'nullable | exists:projects,id',
             'created_by' => 'required | exists:users,id',
             'due_date' => 'required | date | after_or_equal: today',
+            'depends_on' => 'required | array',
+            'depends_on.*' => 'exists:tasks,id',
         ]);
 
         $task = Tasks::create([
@@ -44,6 +46,9 @@ class TaskController extends Controller
             'account_id' => $request->user()->account_id
         ]);
 
+        $task->dependsOn()->sync($request->depends_on);
+        $task->save();
+
         return new TaskResource($task);
     }
 
@@ -53,14 +58,17 @@ class TaskController extends Controller
             'title' => 'required | string | max: 255',
             'description' => 'required | string',
             'due_date' => 'required | date | after_or_equal: today',
-            'assigned_users' => 'required | array',
-            'assigned_users.*' => 'exists:users,id'
+            'assigned_users' => 'sometimes | array',
+            'assigned_users.*' => 'exists:users,id',
+            'depends_on' => 'required | array',
+            'depends_on.*' => 'exists:tasks,id',
         ]);
 
         $task->title = $request->title;
         $task->description = $request->description;
         $task->due_date = $request->due_date;
         $task->assignedTo()->sync($request->assigned_users);
+        $task->dependsOn()->sync($request->depends_on);
         $task->save();
 
         return new TaskResource($task);

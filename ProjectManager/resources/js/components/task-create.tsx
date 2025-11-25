@@ -13,6 +13,7 @@ interface TaskProps {
     open: boolean;
     oldTask: ITask | null;
     projectId: number | null;
+    allTasks: ITask[];
     onClose: () => void;
     onCreate: (task: ITask) => void;
     onUpdate: (task: ITask, assigned_users: number[]) => void;
@@ -20,39 +21,56 @@ interface TaskProps {
 }
 
 const TaskCreateModal = (props: TaskProps) => {
-    const { open, oldTask, projectId, onClose, onCreate, onUpdate, onDelete } = props;
+    const { open, oldTask, projectId, allTasks, onClose, onCreate, onUpdate, onDelete } = props;
     const [title, setTitle] = useState<string>("");
     const [description, setDescription] = useState<string>("");
     const [dueDate, setDueDate] = useState<string>("");
     const [assignTo, setAssignTo] = useState<number[]>([]);
+    const [blockingTasks, setBlockingTasks] = useState<number[]>([]);
     const [users, setUsers] = useState<Items[]>([]);
+    const [tasks, setTasks] = useState<Items[]>([]);
     const { auth } = usePage<SharedData>().props;
     const userId = auth.user.id;
 
-    useEffect(() => {
-        const getUsers = async () => {
-            try {
-                const usersResponse = await apiManager.user.getAll();
-                const items: Items[] = usersResponse.data.map((user: IUser): Items => ({
-                    id: user.id ?? 0,
-                    name: user.display_name ?? "",
-                }));
-                setUsers(items);
-            }
-            catch (e) {
-                console.log("Error geting user: " + e);
-            }
+    const getUsers = async () => {
+        try {
+            const usersResponse = await apiManager.user.getAll();
+            const items: Items[] = usersResponse.data.map((user: IUser): Items => ({
+                id: user.id ?? 0,
+                name: user.display_name ?? "",
+            }));
+            setUsers(items);
         }
+        catch (e) {
+            console.log("Error geting user: " + e);
+        }
+    }
 
+    useEffect(() => {
         getUsers();
     }, []);
+
+    useEffect(() => {
+        setTasks(allTasks.map((task: ITask): Items => ({
+            id: task.id ?? 0,
+            name: task.title ?? "",
+        })));
+    }, [allTasks]);
 
     useEffect(() => {
         if (oldTask) {
             setTitle(oldTask.title);
             setDescription(oldTask.description);
             setDueDate(oldTask.due_date);
-            setAssignTo(oldTask.assigned_users || []);
+            setAssignTo(oldTask.assigned_users);
+            setBlockingTasks(oldTask.depends_on);
+        }
+        else {
+            setTitle("");
+            setDescription("");
+            setDueDate("");
+            setAssignTo([]);
+            setBlockingTasks([]);
         }
     }, [oldTask]);
 
@@ -63,10 +81,11 @@ const TaskCreateModal = (props: TaskProps) => {
             title: title,
             description: description,
             due_date: dueDate,
-            status: "Open", // We don't have blocked yet
+            status: "Open", // This is the only status you can create it with.
             project_id: projectId,
             created_by: userId,
             assigned_users: assignTo,
+            depends_on: blockingTasks,
         };
 
         try {
@@ -79,18 +98,12 @@ const TaskCreateModal = (props: TaskProps) => {
                 onUpdate(response.data.data, assignTo);
             }
 
-            CloseModal();
+            onClose();
         }
         catch (error) {
             console.error("Error: ", error);
         }
     };
-
-    const CloseModal = () => {
-        setTitle("");
-        setDescription("");
-        onClose();
-    }
 
     const handleDelete = async (e: { preventDefault: () => void; }) => {
         onDelete();
@@ -100,8 +113,12 @@ const TaskCreateModal = (props: TaskProps) => {
         setAssignTo(ids);
     }
 
+    function toggleIfBlockingTasks(ids: number[]) {
+        setBlockingTasks(ids);
+    }
+
     return (
-        <Dialog open={open} onOpenChange={CloseModal}>
+        <Dialog open={open} onOpenChange={onClose}>
             <DialogContent className="bg-[#10101f] rounded-lg p-6">
                 <DialogHeader>
                     <DialogTitle>{oldTask ? "Update: " + oldTask.title : "Create task"}</DialogTitle>
@@ -147,6 +164,15 @@ const TaskCreateModal = (props: TaskProps) => {
                         </div>
                     )}
 
+                    <div>
+                        <label>Blocking tasks</label>
+                        <MultiSelectDropdown
+                            items={tasks}
+                            selected={blockingTasks}
+                            onChange={toggleIfBlockingTasks}
+                        />
+                    </div>
+
                     <div className="mt-6 flex space-x-2 justify-center">
                         {oldTask != null && (
                             <Button
@@ -160,7 +186,7 @@ const TaskCreateModal = (props: TaskProps) => {
 
                         <Button
                             type="button"
-                            onClick={CloseModal}
+                            onClick={onClose}
                             className="bg-gray-300 hover:bg-gray-400"
                         >
                             {oldTask ? "Cancel" : "Close"}

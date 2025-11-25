@@ -64,6 +64,14 @@ const TaskItem = (props: TaskItemProps) => {
                     >
                         Task
                     </Badge>
+                    {task.depends_on?.length > 0 && (
+                        <Badge
+                            variant="outline"
+                            className="text-xs bg-red-800 text-gray"
+                        >
+                            Blocked
+                        </Badge>
+                    )}
                     <Badge
                         variant="outline"
                         className={`text-xs ${getStatusBadgeColor(task.status)}`}
