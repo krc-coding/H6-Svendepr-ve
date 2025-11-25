@@ -36,3 +36,6 @@
 ### 20-11-25
 - Finished making the confirm modal
 - Made user assign to task
+
+### 21-11-25
+- Made project assignable to new project manager

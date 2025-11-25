@@ -52,6 +52,7 @@ class ProjectController extends Controller
         $project->name = $request->name;
         $project->description = $request->description;
         $project->due_date = $request->due_date;
+        $project->project_lead_id = $request->project_lead_id;
         $project->save();
 
         return new ProjectResource($project);
