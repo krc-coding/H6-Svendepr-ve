@@ -3,10 +3,8 @@ import { apiManager } from '@/lib/api-manager';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { IProject } from '@/types/types';
+import { IProject, IUser } from '@/types/types';
 import DateTimePicker from "@/components/ui/date-time-picker";
-import { usePage } from "@inertiajs/react";
-import { SharedData } from "@/types";
 
 interface ProjectProps {
     open: boolean;
@@ -22,14 +20,41 @@ const ProjectCreateModal = (props: ProjectProps) => {
     const [name, setName] = useState<string>("");
     const [description, setDescription] = useState<string>("");
     const [dueDate, setDueDate] = useState<string>("");
-    const { auth } = usePage<SharedData>().props;
-    const userId = auth.user.id;
+    const [projectManager, setProjectManager] = useState<number>(-1);
+    const [users, setUsers] = useState<IUser[]>([]);
+
+    useEffect(() => {
+        const getUsers = async () => {
+            try {
+                const usersResponse = await apiManager.user.getAllProjectManagers();
+                setUsers(usersResponse.data);
+            }
+            catch (e) {
+                console.log("Error geting user: " + e);
+            }
+        }
+
+        getUsers();
+    }, []);
 
     useEffect(() => {
         if (oldProject) {
             setName(oldProject.name);
             setDescription(oldProject.description);
             setDueDate(oldProject.due_date);
+
+            if (users.some(u => u.id === oldProject.project_lead_id)){
+                setProjectManager(oldProject.project_lead_id || 0);
+            }
+            else {
+                setProjectManager(0);
+            }
+        }
+        else {
+            setName("");
+            setDescription("");
+            setDueDate("");
+            setProjectManager(0);
         }
     }, [oldProject]);
 
@@ -41,7 +66,7 @@ const ProjectCreateModal = (props: ProjectProps) => {
             description: description,
             due_date: dueDate,
             status: "Open",
-            project_lead_id: userId,
+            project_lead_id: projectManager,
         };
 
         try {
@@ -97,7 +122,38 @@ const ProjectCreateModal = (props: ProjectProps) => {
 
                     <DateTimePicker
                         firstTimeRender={oldProject?.due_date || null}
-                        setDateTime={setDueDate} />
+                        setDateTime={setDueDate}
+                    />
+
+                    <div>
+                        <label className="block mb-1 font-semibold">Project manager</label>
+                        <select
+                            value={projectManager}
+                            onChange={(e) =>
+                                setProjectManager(Number(e.target.value))
+                            }
+                            className="border p-2 rounded"
+                        >
+                            <option
+                                className="bg-[#1e2939] text-gray"
+                                key={0}
+                                value={0}
+                                disabled
+                            >
+                                Select a project manager
+                            </option>
+
+                            {users.map(user => (
+                                <option
+                                    className="bg-[#1e2939] text-white"
+                                    key={user.id}
+                                    value={user.id}
+                                >
+                                    {user.display_name}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
 
                     <div className="mt-6 flex space-x-2 justify-center">
                         {oldProject != null && (

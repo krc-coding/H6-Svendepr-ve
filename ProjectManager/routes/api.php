@@ -8,6 +8,7 @@ use App\Http\Controllers\UserController;
 Route::middleware(['api', 'auth:sanctum'])->group(function () {
     Route::prefix('/user')->group(function () {
         Route::post('/create', [UserController::class, 'createUser']);
+        Route::get('/project_managers', [UserController::class, 'getProjectManagers']);
         Route::get('/{user}', [UserController::class, 'getUser']);
         Route::get('/', [UserController::class, 'getUsers']);
         Route::patch('/edit/{user}', [UserController::class, 'editUser']);
@@ -28,7 +29,7 @@ Route::middleware(['api', 'auth:sanctum'])->group(function () {
         Route::post('/create', [ProjectController::class, 'createProject']);
         Route::get('/{project}', [ProjectController::class, 'getProject']);
         Route::get('/', [ProjectController::class, 'getAllProjects']);
-        Route::patch('/edit/{project}', [ProjectController::class, 'editProject']);
+        Route::put('/edit/{project}', [ProjectController::class, 'editProject']);
         Route::patch('/update_status/{project}', [ProjectController::class, 'updateStatus']);
         Route::delete('/{project}', [ProjectController::class, 'delete']);
     });

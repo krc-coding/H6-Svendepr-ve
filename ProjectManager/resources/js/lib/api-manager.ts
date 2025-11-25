@@ -12,6 +12,9 @@ export const apiManager = {
         "getAll": () => {
             return axios.get('/api/user');
         },
+        "getAllProjectManagers": () => {
+            return axios.get('/api/user/project_managers');
+        },
         "update": (userId: number, user: IUser) => {
             return axios.patch('/api/user/edit/' + userId, user);
         },
@@ -57,7 +60,7 @@ export const apiManager = {
             return axios.get('/api/project');
         },
         "update": (projectId: number, project: IProject) => {
-            return axios.put('/api/project/' + projectId, project);
+            return axios.put('/api/project/edit/' + projectId, project);
         },
         "updateStatus": (projectId: number, status: string) => {
             return axios.patch('/api/project/update_status/' + projectId, { "status": status });

@@ -21,6 +21,13 @@ class UserController extends Controller
         return User::all()->mapInto(UserResource::class);
     }
 
+    public function getProjectManagers()
+    {
+        return User::where("role", User::ROLE_PROJECT_MANAGER)
+            ->get()
+            ->mapInto(UserResource::class);
+    }
+
     public function getUser(User $user)
     {
         return new UserResource($user);
