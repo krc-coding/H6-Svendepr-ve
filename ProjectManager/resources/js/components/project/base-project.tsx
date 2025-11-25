@@ -1,5 +1,5 @@
 import {useState, useEffect} from 'react';
-import {ITask, IProject} from '@/types/types';
+import {ITask, IProject, IUser} from '@/types/types';
 import TaskItem from "@/components/project/task-item";
 import ProjectItem from "@/components/project/project-item";
 import {ProjectLayout} from "@/layouts/project/default-layout";
@@ -8,6 +8,7 @@ import Column from "@/components/project/column";
 interface ProjectBoardProps {
     tasks: ITask[];
     projects: IProject[];
+    users: IUser[];
     onTaskStatusUpdate?: (taskId: number, newStatus: string) => void;
     onProjectStatusUpdate?: (projectId: number, newStatus: string) => void;
     onTaskClicked: (task: ITask) => void;
@@ -28,6 +29,7 @@ export function ProjectBoard(props: ProjectBoardProps) {
     const {
         tasks,
         projects,
+        users,
         onTaskStatusUpdate,
         onProjectStatusUpdate,
         onTaskClicked,
@@ -66,6 +68,7 @@ export function ProjectBoard(props: ProjectBoardProps) {
                         column={column}
                         tasks={tasksInColumn}
                         projects={projectsInColumn}
+                        users={users}
                         onTaskClicked={onTaskClicked}
                         onProjectClicked={onProjectClicked}
                         layout={layout}

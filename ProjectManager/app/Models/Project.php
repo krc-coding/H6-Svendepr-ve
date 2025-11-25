@@ -39,7 +39,7 @@ class Project extends Model
 
     public function tasks(): HasMany
     {
-        return $this->hasMany(Tasks::class, 'device_id');
+        return $this->hasMany(Tasks::class);
     }
 
     public function user(): BelongsTo
