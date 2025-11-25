@@ -5,9 +5,15 @@ namespace App\Http\Controllers;
 use App\Http\Resources\ProjectResource;
 use App\Models\Project;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class ProjectController extends Controller
 {
+    public function index(Project $project)
+    {
+        return Inertia::render('project-board', ['project' => $project->toArray()]);
+    }
+
     public function getAllProjects()
     {
         return Project::all()->mapInto(ProjectResource::class);
