@@ -9,7 +9,6 @@ export interface ITask {
     "assigned_users": number[];
     "depends_on": number[];
     "created_at"?: string;
-    "updated_at"?: string;
 }
 
 export interface IUser {
@@ -31,8 +30,8 @@ export interface IProject {
     "status": string;
     "project_lead_id"?: IUser["id"];
     "due_date": string;
+    "user_worked_in_project": IUser["id"][];
     "created_at"?: string;
-    "updated_at"?: string;
 }
 
 export const TASK_STATUS = {
