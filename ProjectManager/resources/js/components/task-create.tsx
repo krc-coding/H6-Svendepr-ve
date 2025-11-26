@@ -3,7 +3,7 @@ import { apiManager } from '@/lib/api-manager';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ITask, IUser } from '@/types/types';
+import { ITask, IUser, TASK_STATUS } from '@/types/types';
 import { SharedData } from "@/types";
 import { usePage } from "@inertiajs/react";
 import DateTimePicker from "@/components/ui/date-time-picker";
@@ -14,6 +14,7 @@ interface TaskProps {
     oldTask: ITask | null;
     projectId?: number;
     allTasks: ITask[];
+    allUsers: IUser[];
     onClose: () => void;
     onCreate: (task: ITask) => void;
     onUpdate: (task: ITask, assigned_users: number[]) => void;
@@ -21,7 +22,7 @@ interface TaskProps {
 }
 
 const TaskCreateModal = (props: TaskProps) => {
-    const { open, oldTask, projectId, allTasks, onClose, onCreate, onUpdate, onDelete } = props;
+    const { open, oldTask, projectId, allTasks, allUsers, onClose, onCreate, onUpdate, onDelete } = props;
     const [title, setTitle] = useState<string>("");
     const [description, setDescription] = useState<string>("");
     const [dueDate, setDueDate] = useState<string>("");
@@ -32,47 +33,31 @@ const TaskCreateModal = (props: TaskProps) => {
     const { auth } = usePage<SharedData>().props;
     const userId = auth.user.id;
 
-    const getUsers = async () => {
-        try {
-            const usersResponse = await apiManager.user.getAll();
-            const items: Items[] = usersResponse.data.map((user: IUser): Items => ({
-                id: user.id ?? 0,
-                name: user.display_name ?? "",
-            }));
-            setUsers(items);
-        }
-        catch (e) {
-            console.log("Error geting user: " + e);
-        }
-    }
+    useEffect(() => {
+        setUsers(allUsers.map((user): Items => ({
+            id: user.id ?? 0,
+            name: user.display_name ?? "",
+            show: true,
+        })));
+    }, [allUsers]);
 
     useEffect(() => {
-        getUsers();
-    }, []);
+        setTitle(oldTask?.title ?? "");
+        setDescription(oldTask?.description ?? "");
+        setDueDate(oldTask?.due_date ?? "");
+        setAssignTo(oldTask?.assigned_users ?? []);
+        setBlockingTasks(oldTask?.depends_on ?? []);
+        setTasks(createTaskItemsForBlocking());
+    }, [oldTask]);
 
-    useEffect(() => {
-        setTasks(allTasks.map((task: ITask): Items => ({
+    const createTaskItemsForBlocking = (): Items[] => {
+        return allTasks.map((task): Items => ({
             id: task.id ?? 0,
             name: task.title ?? "",
-        })));
-    }, [allTasks]);
-
-    useEffect(() => {
-        if (oldTask) {
-            setTitle(oldTask.title);
-            setDescription(oldTask.description);
-            setDueDate(oldTask.due_date);
-            setAssignTo(oldTask.assigned_users);
-            setBlockingTasks(oldTask.depends_on);
-        }
-        else {
-            setTitle("");
-            setDescription("");
-            setDueDate("");
-            setAssignTo([]);
-            setBlockingTasks([]);
-        }
-    }, [oldTask]);
+            show: oldTask?.project_id === task.project_id
+                && task.id !== oldTask?.id,
+        }));
+    }
 
     const handleSubmit = async (e: { preventDefault: () => void; }) => {
         e.preventDefault();
@@ -81,7 +66,7 @@ const TaskCreateModal = (props: TaskProps) => {
             title: title,
             description: description,
             due_date: dueDate,
-            status: "Open", // This is the only status you can create it with.
+            status: TASK_STATUS.OPEN,
             project_id: projectId,
             created_by: userId,
             assigned_users: assignTo,
@@ -93,8 +78,8 @@ const TaskCreateModal = (props: TaskProps) => {
                 const response = await apiManager.task.create(task);
                 onCreate(response.data.data);
             }
-            else if (oldTask?.id !== undefined) {
-                const response = await apiManager.task.update(oldTask?.id, task);
+            else {
+                const response = await apiManager.task.update(oldTask?.id || 0, task);
                 onUpdate(response.data.data, assignTo);
             }
 
@@ -104,18 +89,6 @@ const TaskCreateModal = (props: TaskProps) => {
             console.error("Error: ", error);
         }
     };
-
-    const handleDelete = async (e: { preventDefault: () => void; }) => {
-        onDelete();
-    }
-
-    function toggleIfAssignedTo(ids: number[]) {
-        setAssignTo(ids);
-    }
-
-    function toggleIfBlockingTasks(ids: number[]) {
-        setBlockingTasks(ids);
-    }
 
     return (
         <Dialog open={open} onOpenChange={onClose}>
@@ -159,7 +132,7 @@ const TaskCreateModal = (props: TaskProps) => {
                             <MultiSelectDropdown
                                 items={users}
                                 selected={assignTo}
-                                onChange={toggleIfAssignedTo}
+                                onChange={setAssignTo}
                             />
                         </div>
                     )}
@@ -169,7 +142,7 @@ const TaskCreateModal = (props: TaskProps) => {
                         <MultiSelectDropdown
                             items={tasks}
                             selected={blockingTasks}
-                            onChange={toggleIfBlockingTasks}
+                            onChange={setBlockingTasks}
                         />
                     </div>
 
@@ -177,7 +150,7 @@ const TaskCreateModal = (props: TaskProps) => {
                         {oldTask != null && (
                             <Button
                                 type="button"
-                                onClick={handleDelete}
+                                onClick={onDelete}
                                 className="bg-red-500 hover:bg-red-600 text-white"
                             >
                                 Delete

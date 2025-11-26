@@ -21,9 +21,9 @@ export default function Dashboard() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [isTaskCreateModalOpen, setIsTaskCreateModalOpen] = useState(false);
-    const [taskUpdate, setTaskUpdate] = useState<ITask | null>(null);
+    const [selectedTask, setSelectedTask] = useState<ITask | null>(null);
     const [isProjectCreateModalOpen, setIsProjectCreateModalOpen] = useState(false);
-    const [projectUpdate, setProjectUpdate] = useState<IProject | null>(null);
+    const [selectedProject, setSelectedProject] = useState<IProject | null>(null);
     const [isDeleteConfirmationModalOpen, setIsDeleteConfirmationModalOpen] = useState(false);
     const [layout, setLayout] = useState<ProjectLayout>(defaultLayout);
 
@@ -124,13 +124,13 @@ export default function Dashboard() {
     };
 
     const openCreateTask = (oldTask: ITask | null = null) => {
-        setTaskUpdate(oldTask);
+        setSelectedTask(oldTask);
         setIsTaskCreateModalOpen(true);
     }
 
     const closeCreateTask = () => {
         setIsTaskCreateModalOpen(false);
-        setTaskUpdate(null);
+        setSelectedTask(null);
     }
 
     const onCreatedNewTask = (newTask: ITask) => {
@@ -147,13 +147,13 @@ export default function Dashboard() {
     }
 
     const openCreateProject = (oldProject: IProject | null = null) => {
-        setProjectUpdate(oldProject);
+        setSelectedProject(oldProject);
         setIsProjectCreateModalOpen(true);
     }
 
     const closeCreateProject = () => {
         setIsProjectCreateModalOpen(false);
-        setProjectUpdate(null);
+        setSelectedProject(null);
     }
 
     const onCreatedNewProject = (newProject: IProject) => {
@@ -173,41 +173,41 @@ export default function Dashboard() {
         setIsDeleteConfirmationModalOpen(true);
     }
 
-    const openDeleteProjectConfirmation = (project: IProject) => {
+    const openDeleteProjectConfirmation = () => {
         setIsProjectCreateModalOpen(false);
         setIsDeleteConfirmationModalOpen(true);
     }
 
     const closeConfirmModal = () => {
         setIsDeleteConfirmationModalOpen(false);
-        setTaskUpdate(null);
-        setProjectUpdate(null);
+        setSelectedTask(null);
+        setSelectedProject(null);
     }
 
-    const OnConfirm = () => {
-        if (taskUpdate) {
+    const onConfirm = () => {
+        if (selectedTask) {
             deleteTask();
         }
 
-        if (projectUpdate) {
+        if (selectedProject) {
             deleteProject();
         }
     }
 
     const deleteTask = async () => {
-        await apiManager.task.delete(taskUpdate?.id || 0);
+        await apiManager.task.delete(selectedTask?.id || 0);
         setTasks((prevTasks) =>
             prevTasks.filter((task) =>
-                task.id !== taskUpdate?.id
+                task.id !== selectedTask?.id
             )
         );
     }
 
     const deleteProject = async () => {
-        await apiManager.project.delete(projectUpdate?.id || 0);
-        setTasks((prevProjects) =>
+        await apiManager.project.delete(selectedProject?.id || 0);
+        setProjects((prevProjects) =>
             prevProjects.filter((project) =>
-                project.id !== projectUpdate?.id
+                project.id !== selectedProject?.id
             )
         );
     }
@@ -323,8 +323,9 @@ export default function Dashboard() {
 
             <TaskCreateModal
                 open={isTaskCreateModalOpen}
-                oldTask={taskUpdate}
+                oldTask={selectedTask}
                 allTasks={tasks}
+                allUsers={users}
                 onClose={closeCreateTask}
                 onCreate={onCreatedNewTask}
                 onUpdate={onTaskUpdated}
@@ -333,7 +334,8 @@ export default function Dashboard() {
 
             <ProjectCreateModal
                 open={isProjectCreateModalOpen}
-                oldProject={projectUpdate}
+                oldProject={selectedProject}
+                allUsers={users}
                 onClose={closeCreateProject}
                 onCreate={onCreatedNewProject}
                 onUpdate={onProjectUpdated}
@@ -342,7 +344,7 @@ export default function Dashboard() {
 
             <DeleteConfirmationModal
                 open={isDeleteConfirmationModalOpen}
-                onConfirm={OnConfirm}
+                onConfirm={onConfirm}
                 onClose={closeConfirmModal}
             />
         </AppLayout>
