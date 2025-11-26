@@ -82,11 +82,12 @@ const TaskCreateModal = (props: TaskProps) => {
                 const response = await apiManager.task.update(oldTask?.id || 0, task);
                 onUpdate(response.data.data, assignTo);
             }
-
-            onClose();
         }
         catch (error) {
             console.error("Error: ", error);
+        }
+        finally {
+            onClose();
         }
     };
 

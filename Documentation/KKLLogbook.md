@@ -42,3 +42,13 @@
 
 ### 24-11-25
 - Made task blocking other tasks
+
+### 25-11-25
+- Project cards shows users, that has worked on a task in the project. 
+
+### 26-11-25
+- Cleaned up:
+    - Project create/edit
+    - Task create/edit
+    - User management
+    - User create/edit

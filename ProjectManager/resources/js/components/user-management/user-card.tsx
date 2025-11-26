@@ -1,6 +1,6 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { IUser } from '@/types/types';
+import { IUser, USER_ROLES } from '@/types/types';
 import { Button } from "@/components/ui/button";
 
 interface UserProps {
@@ -15,11 +15,11 @@ const UserCard = (props: UserProps) => {
 
     const getRoleBadgeColor = (role: string) => {
         switch (role) {
-            case 'User':
+            case USER_ROLES.USER:
                 return 'bg-gray-50 text-gray-700 border-gray-200';
-            case 'Admin':
+            case USER_ROLES.ADMIN:
                 return 'bg-blue-50 text-blue-700 border-blue-200';
-            case 'Project manager':
+            case USER_ROLES.PROJECT_MANAGER:
                 return 'bg-green-50 text-green-700 border-green-200';
         }
     }

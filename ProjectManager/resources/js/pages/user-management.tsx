@@ -4,8 +4,7 @@ import { IUser } from '@/types/types';
 import { Head } from '@inertiajs/react';
 import { Button } from "@/components/ui/button";
 import UserCard from '@/components/user-management/user-card';
-import UserEditModal from '@/components/user-management/user-edit'
-import UserConfirmDeleteModal from '@/components/user-management/user-confirm-delete'
+import UserConfirmDeleteModal from '@/components/user-management/user-confirm-delete';
 import UserCreateModal from '@/components/user-management/user-create';
 import UserResetPassword from '@/components/user-management/user-reset-password';
 import AppLayout from '@/layouts/app-layout';
@@ -15,35 +14,34 @@ export default function UserManagementPage() {
     const [error, setError] = useState<string | null>(null);
     const [users, setUsers] = useState<IUser[]>([]);
     const [selectedUser, setSelectedUser] = useState<IUser | null>(null);
-    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [isConfirmDeleteModalOpen, setIsConfirmDeleteModalOpen] = useState(false);
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [isUserResetPasswordOpen, setIsUserResetPasswordOpen] = useState(false);
 
     useEffect(() => {
-        const fetchData = async () => {
-            try {
-                setLoading(true);
-                setError(null);
-
-                const usersResponse = await apiManager.user.getAll();
-                setUsers(usersResponse.data);
-            }
-            catch (err: any) {
-                console.error('Error fetching data:', err);
-                setError(err.response?.data?.message || 'Failed to fetch data');
-            }
-            finally {
-                setLoading(false);
-            }
-        };
-
-        fetchData();
+        fetchUsers();
     }, []);
+
+    const fetchUsers = async () => {
+        try {
+            setLoading(true);
+            setError(null);
+
+            const usersResponse = await apiManager.user.getAll();
+            setUsers(usersResponse.data);
+        }
+        catch (err: any) {
+            console.error('Error fetching data:', err);
+            setError(err.response?.data?.message || 'Failed to fetch data');
+        }
+        finally {
+            setLoading(false);
+        }
+    };
 
     const openEditModal = (user: IUser) => {
         setSelectedUser(user);
-        setIsEditModalOpen(true);
+        setIsCreateModalOpen(true);
     };
 
     const saveEditedUser = (updatedUser: IUser) => {
@@ -81,7 +79,6 @@ export default function UserManagementPage() {
     const CloseAllModals = () => {
         setIsConfirmDeleteModalOpen(false);
         setIsCreateModalOpen(false);
-        setIsEditModalOpen(false);
         setIsUserResetPasswordOpen(false);
         setSelectedUser(null);
     }
@@ -154,24 +151,38 @@ export default function UserManagementPage() {
                 <div className="container mx-auto mt-4">
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                         {users.map((user) => (
-                            <UserCard user={user} onEdit={openEditModal} onDelete={openConfirmDelete}
-                                onPasswordReset={OpenPasswordReset} key={'user-' + user.id} />
+                            <UserCard
+                                user={user}
+                                onEdit={openEditModal}
+                                onDelete={openConfirmDelete}
+                                onPasswordReset={OpenPasswordReset}
+                                key={'user-' + user.id}
+                            />
                         ))}
                     </div>
                 </div>
             </div>
 
-            <UserCreateModal open={isCreateModalOpen} OnCreate={OnCreatedNewUser} onClose={CloseAllModals}
-                key={'user-create-modal'} />
+            <UserCreateModal
+                open={isCreateModalOpen}
+                oldUser={selectedUser}
+                onClose={CloseAllModals}
+                onCreate={OnCreatedNewUser}
+                onUpdate={saveEditedUser}
+            />
 
-            <UserEditModal user={selectedUser} open={isEditModalOpen} onClose={CloseAllModals} OnUpdate={saveEditedUser}
-                key={'user-edit-modal'} />
+            <UserResetPassword
+                open={isUserResetPasswordOpen}
+                user={selectedUser}
+                onClose={CloseAllModals}
+            />
 
-            <UserResetPassword user={selectedUser} open={isUserResetPasswordOpen} onClose={CloseAllModals}
-                key={'user-reset-password'} />
-
-            <UserConfirmDeleteModal user={selectedUser} open={isConfirmDeleteModalOpen} onClose={CloseAllModals}
-                onConfirm={confirmUserDeletion} key={'user-confirm-delete'} />
+            <UserConfirmDeleteModal
+                open={isConfirmDeleteModalOpen}
+                user={selectedUser}
+                onClose={CloseAllModals}
+                onConfirm={confirmUserDeletion}
+            />
         </AppLayout>
     );
 }

@@ -1,9 +1,9 @@
-import {useEffect, useState} from "react";
-import {apiManager} from '@/lib/api-manager';
-import {Dialog, DialogContent, DialogHeader, DialogTitle} from "@/components/ui/dialog";
-import {Button} from "@/components/ui/button";
-import {Input} from "@/components/ui/input";
-import {IProject, IUser, PROJECT_STATUS, USER_ROLES} from '@/types/types';
+import { useEffect, useState } from "react";
+import { apiManager } from '@/lib/api-manager';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { IProject, IUser, PROJECT_STATUS, USER_ROLES } from '@/types/types';
 import DateTimePicker from "@/components/ui/date-time-picker";
 
 interface ProjectProps {
@@ -17,7 +17,7 @@ interface ProjectProps {
 }
 
 const ProjectCreateModal = (props: ProjectProps) => {
-    const {open, oldProject, allUsers, onClose, onCreate, onUpdate, onDelete} = props;
+    const { open, oldProject, allUsers, onClose, onCreate, onUpdate, onDelete } = props;
     const [name, setName] = useState<string>("");
     const [description, setDescription] = useState<string>("");
     const [dueDate, setDueDate] = useState<string>("");
@@ -63,10 +63,12 @@ const ProjectCreateModal = (props: ProjectProps) => {
                 const response = await apiManager.project.update(oldProject?.id || 0, project);
                 onUpdate(response.data.data);
             }
-
-            onClose();
-        } catch (error) {
+        }
+        catch (error) {
             console.error("Error: ", error);
+        }
+        finally {
+            onClose();
         }
     }
 
