@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 export interface Items {
     id: number;
     name: string;
+    show: boolean;
 }
 
 interface MultiSelectDropdownProps {
@@ -15,8 +16,13 @@ const MultiSelectDropdown = (props: MultiSelectDropdownProps) => {
     const { items, selected, onChange } = props;
     const [open, setOpen] = useState(false);
     const [openAbove, setOpenAbove] = useState(false);
+    const [visibleItems, setVisibleItems] = useState<Items[]>([]);
     const buttonRef = useRef<HTMLButtonElement>(null);
     const dropdownRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        setVisibleItems(items.filter(item => item.show));
+    }, [items]);
 
     useEffect(() => {
         document.addEventListener("mousedown", handleClickOutside);
@@ -83,19 +89,28 @@ const MultiSelectDropdown = (props: MultiSelectDropdownProps) => {
                         ${openAbove ? "bottom-full mb-1" : "top-full mt-1"}
                     `}
                 >
-                    {items.map(item => (
-                        <label
-                            className="flex items-center gap-2 py-1 cursor-pointer"
-                            key={item.id}
-                        >
-                            <input
-                                type="checkbox"
-                                checked={selected.includes(item.id)}
-                                onChange={() => toggle(item.id)}
-                            />
-                            {item.name}
-                        </label>
-                    ))}
+
+                    {visibleItems.length === 0 ?
+                        (
+                            <label className="flex items-center">
+                                No items
+                            </label>
+                        ) :
+                        items.map(item => (
+                            item.show ? (
+                                <label
+                                    className="flex items-center gap-2 py-1 cursor-pointer"
+                                    key={item.id}
+                                >
+                                    <input
+                                        type="checkbox"
+                                        checked={selected.includes(item.id)}
+                                        onChange={() => toggle(item.id)}
+                                    />
+                                    {item.name}
+                                </label>
+                            ) : null
+                        ))}
                 </div>
             )}
         </div>

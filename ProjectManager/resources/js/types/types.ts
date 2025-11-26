@@ -50,5 +50,12 @@ export const PROJECT_STATUS = {
     CANCELLED: "Cancelled"
 } as const;
 
+export const USER_ROLES = {
+    USER: "User",
+    ADMIN: "Admin",
+    PROJECT_MANAGER: "Project manager"
+} as const;
+
 export type TaskStatusValue = typeof TASK_STATUS[keyof typeof TASK_STATUS];
 export type ProjectStatusValue = typeof PROJECT_STATUS[keyof typeof PROJECT_STATUS];
+export type UserRolesValue = typeof USER_ROLES[keyof typeof USER_ROLES];

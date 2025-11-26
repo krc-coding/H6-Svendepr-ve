@@ -1,22 +1,23 @@
-import {useEffect, useState} from "react";
-import {apiManager} from '@/lib/api-manager';
-import {Dialog, DialogContent, DialogHeader, DialogTitle} from "@/components/ui/dialog";
-import {Button} from "@/components/ui/button";
-import {Input} from "@/components/ui/input";
-import {IProject, IUser} from '@/types/types';
+import { useEffect, useState } from "react";
+import { apiManager } from '@/lib/api-manager';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { IProject, IUser, PROJECT_STATUS, USER_ROLES } from '@/types/types';
 import DateTimePicker from "@/components/ui/date-time-picker";
 
 interface ProjectProps {
     open: boolean;
     oldProject: IProject | null;
+    allUsers: IUser[];
     onClose: () => void;
     onCreate: (project: IProject) => void;
     onUpdate: (project: IProject) => void;
-    onDelete: (project: IProject) => void;
+    onDelete: () => void;
 }
 
 const ProjectCreateModal = (props: ProjectProps) => {
-    const {open, oldProject, onClose, onCreate, onUpdate, onDelete} = props;
+    const { open, oldProject, allUsers, onClose, onCreate, onUpdate, onDelete } = props;
     const [name, setName] = useState<string>("");
     const [description, setDescription] = useState<string>("");
     const [dueDate, setDueDate] = useState<string>("");
@@ -24,33 +25,20 @@ const ProjectCreateModal = (props: ProjectProps) => {
     const [users, setUsers] = useState<IUser[]>([]);
 
     useEffect(() => {
-        const getUsers = async () => {
-            try {
-                const usersResponse = await apiManager.user.getAllProjectManagers();
-                setUsers(usersResponse.data);
-            } catch (e) {
-                console.log("Error geting user: " + e);
-            }
-        }
-
-        getUsers();
-    }, []);
+        setUsers(allUsers.filter(user =>
+            user.role === USER_ROLES.PROJECT_MANAGER
+        ));
+    }, [allUsers]);
 
     useEffect(() => {
-        if (oldProject) {
-            setName(oldProject.name);
-            setDescription(oldProject.description);
-            setDueDate(oldProject.due_date);
+        setName(oldProject?.name ?? "");
+        setDescription(oldProject?.description ?? "");
+        setDueDate(oldProject?.due_date ?? "");
 
-            if (users.some(u => u.id === oldProject.project_lead_id)) {
-                setProjectManager(oldProject.project_lead_id || 0);
-            } else {
-                setProjectManager(0);
-            }
+        const projectLeadId = oldProject?.project_lead_id || 0;
+        if (users.some(u => u.id === projectLeadId)) {
+            setProjectManager(projectLeadId);
         } else {
-            setName("");
-            setDescription("");
-            setDueDate("");
             setProjectManager(0);
         }
     }, [oldProject]);
@@ -62,22 +50,25 @@ const ProjectCreateModal = (props: ProjectProps) => {
             name: name,
             description: description,
             due_date: dueDate,
-            status: "Open",
+            status: PROJECT_STATUS.OPEN,
             project_lead_id: projectManager,
+            user_worked_in_project: [],
         };
 
         try {
             if (oldProject == null) {
                 const response = await apiManager.project.create(project);
                 onCreate(response.data.data);
-            } else if (oldProject?.id !== undefined) {
-                const response = await apiManager.project.update(oldProject?.id, project);
+            } else {
+                const response = await apiManager.project.update(oldProject?.id || 0, project);
                 onUpdate(response.data.data);
             }
-
-            onClose();
-        } catch (error) {
+        }
+        catch (error) {
             console.error("Error: ", error);
+        }
+        finally {
+            onClose();
         }
     }
 
@@ -171,7 +162,7 @@ const ProjectCreateModal = (props: ProjectProps) => {
                         {oldProject != null && (
                             <Button
                                 type="button"
-                                onClick={() => onDelete(oldProject)}
+                                onClick={onDelete}
                                 className="bg-red-500 hover:bg-red-600 text-white"
                             >
                                 Delete

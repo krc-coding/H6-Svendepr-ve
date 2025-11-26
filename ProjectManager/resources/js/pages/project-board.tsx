@@ -23,7 +23,7 @@ export default function ProjectBoardPage() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [isTaskCreateModalOpen, setIsTaskCreateModalOpen] = useState(false);
-    const [taskUpdate, setTaskUpdate] = useState<ITask | null>(null);
+    const [selectedTask, setSelectedTask] = useState<ITask | null>(null);
     const [isDeleteConfirmationModalOpen, setIsDeleteConfirmationModalOpen] = useState(false);
     const [layout, setLayout] = useState<ProjectLayout>(defaultLayout);
 
@@ -61,13 +61,13 @@ export default function ProjectBoardPage() {
     };
 
     const openCreateTask = (oldTask: ITask | null = null) => {
-        setTaskUpdate(oldTask);
+        setSelectedTask(oldTask);
         setIsTaskCreateModalOpen(true);
     }
 
     const closeCreateTask = () => {
         setIsTaskCreateModalOpen(false);
-        setTaskUpdate(null);
+        setSelectedTask(null);
     }
 
     const onCreatedNewTask = (newTask: ITask) => {
@@ -90,20 +90,14 @@ export default function ProjectBoardPage() {
 
     const closeConfirmModal = () => {
         setIsDeleteConfirmationModalOpen(false);
-        setTaskUpdate(null);
-    }
-
-    const OnConfirm = () => {
-        if (taskUpdate) {
-            deleteTask();
-        }
+        setSelectedTask(null);
     }
 
     const deleteTask = async () => {
-        await apiManager.task.delete(taskUpdate?.id || 0);
+        await apiManager.task.delete(selectedTask?.id || 0);
         setTasks((prevTasks) =>
             prevTasks.filter((task) =>
-                task.id !== taskUpdate?.id
+                task.id !== selectedTask?.id
             )
         );
     }
@@ -209,9 +203,10 @@ export default function ProjectBoardPage() {
 
             <TaskCreateModal
                 open={isTaskCreateModalOpen}
-                oldTask={taskUpdate}
+                oldTask={selectedTask}
                 projectId={project.id}
                 allTasks={tasks}
+                allUsers={users}
                 onClose={closeCreateTask}
                 onCreate={onCreatedNewTask}
                 onUpdate={onTaskUpdated}
@@ -220,7 +215,7 @@ export default function ProjectBoardPage() {
 
             <DeleteConfirmationModal
                 open={isDeleteConfirmationModalOpen}
-                onConfirm={OnConfirm}
+                onConfirm={deleteTask}
                 onClose={closeConfirmModal}
             />
         </AppLayout>
