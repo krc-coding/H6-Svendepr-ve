@@ -22,7 +22,7 @@
 
 - Created a basic account system.
 - Connected account model and table to user, projects and tasks models and tables.
-- Discovered issues with the account scope, which caused infinite loops. 
+- Discovered issues with the account scope, which caused infinite loops.
 - Found issues with api requests not being correctly stateful.
 - Fixed these issues.
 
@@ -55,3 +55,18 @@
 ## 2025-11-21:
 
 - Finished basic drag and drop functionality.
+
+## 2025-11-24:
+
+- Had issues where it couldn't load any tasks.
+- Fixed issue with loading, the issue was a naming issue between windows and linux
+
+## 2025-11-25:
+
+- Started work on implementing new project board for showing only project tasks.
+- Replaced dashboard with default project board.
+
+## 2025-11-26:
+
+- Updated refresh logic to prevent page reload.
+- Updated project board to show only tasks assigned to the project.

@@ -1,78 +1,31 @@
-import { useState, useEffect } from 'react';
-import { Head, usePage } from '@inertiajs/react';
-import { ProjectBoard } from '@/components/project/base-project';
-import { Button } from "@/components/ui/button";
-import { ITask, IProject, TASK_STATUS, PROJECT_STATUS, IUser } from '@/types/types';
-import { apiManager } from '@/lib/api-manager';
+import {useState, useEffect} from 'react';
+import {Head, usePage} from '@inertiajs/react';
+import {ProjectBoard} from '@/components/project/base-project';
+import {Button} from "@/components/ui/button";
+import {ITask, IProject, IUser} from '@/types/types';
+import {apiManager} from '@/lib/api-manager';
 import AppLayout from "@/layouts/app-layout";
 import TaskCreateModal from '@/components/task-create';
-import ProjectCreateModal from '@/components/project-create';
-import { defaultLayout, ProjectLayout } from "@/layouts/project/default-layout";
-import type { SharedData } from "@/types";
+import {defaultLayout, ProjectLayout} from "@/layouts/project/default-layout";
+import type {SharedData} from "@/types";
 import DeleteConfirmationModal from "@/components/delete-confirmation"
 import {DndProvider} from 'react-dnd'
 import {HTML5Backend} from 'react-dnd-html5-backend'
 
+interface ExtendedSharedData extends SharedData {
+    project: IProject;
+}
+
 export default function ProjectBoardPage() {
-    const {auth} = usePage<SharedData>().props;
-    const [tasks, setTasks] = useState<ITask[]>([]);
-    const [projects, setProjects] = useState<IProject[]>([]);
+    const {auth, project} = usePage<ExtendedSharedData>().props;
+    const [tasks, setTasks] = useState<ITask[]>(project.tasks ?? []);
     const [users, setUsers] = useState<IUser[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [isTaskCreateModalOpen, setIsTaskCreateModalOpen] = useState(false);
     const [taskUpdate, setTaskUpdate] = useState<ITask | null>(null);
-    const [isProjectCreateModalOpen, setIsProjectCreateModalOpen] = useState(false);
-    const [projectUpdate, setProjectUpdate] = useState<IProject | null>(null);
     const [isDeleteConfirmationModalOpen, setIsDeleteConfirmationModalOpen] = useState(false);
     const [layout, setLayout] = useState<ProjectLayout>(defaultLayout);
-
-    const fetchTasksAndProjects = async () => {
-        const [tasksResponse, projectsResponse] = await Promise.all([
-            apiManager.task.getAll(),
-            apiManager.project.getAll()
-        ]);
-
-        // Filter out any tasks with invalid statuses
-        const validTasks = tasksResponse.data.filter((task: ITask) => {
-            let shouldShow = false;
-
-            if (layout.showOnlyCreatedByMe && task.created_by == auth.user.id) {
-                shouldShow = true;
-            } else if (!layout.showOnlyCreatedByMe) {
-                shouldShow = true;
-                // } else if (layout.showOnlyAssignedToMe && task.assigned_to == auth.user.id) {
-                //     shouldShow = true;
-                // } else if (!layout.showOnlyAssignedToMe) {
-                //     shouldShow = true;
-            }
-
-            if (!shouldShow) return false;
-            shouldShow = Object.values(TASK_STATUS).includes(task.status as any);
-            return shouldShow;
-        });
-
-        // Filter out any projects with invalid statuses
-        const validProjects = projectsResponse.data.filter((project: IProject) => {
-            let shouldShow = false;
-
-            // We don't have created by on project elements, so we can't filter by it here
-            // if (layout.showOnlyAssignedToMe && project.project_lead_id == auth.user.id) {
-            //     shouldShow = true;
-            // } else if (!layout.showOnlyAssignedToMe) {
-            //     shouldShow = true;
-            // }
-
-            // // This make a error where i can't see any project from the server
-            // if (!shouldShow) return false;
-            shouldShow = Object.values(PROJECT_STATUS).includes(project.status as any)
-            return shouldShow;
-        });
-
-        setTasks(validTasks);
-        setProjects(validProjects);
-        
-    };
 
     const fetchUsers = async () => {
         const userResponse = await apiManager.user.getAll();
@@ -83,7 +36,6 @@ export default function ProjectBoardPage() {
         try {
             setLoading(true);
             setError(null);
-            fetchTasksAndProjects();
             fetchUsers();
         } catch (err: any) {
             console.error('Error fetching data:', err);
@@ -99,27 +51,12 @@ export default function ProjectBoardPage() {
 
             setTasks(prevTasks =>
                 prevTasks.map(task =>
-                    task.id === taskId ? { ...task, status: newStatus as any } : task
+                    task.id === taskId ? {...task, status: newStatus as any} : task
                 )
             );
         } catch (err: any) {
             console.error('Error updating task status:', err);
             setError('Failed to update task status');
-        }
-    };
-
-    const handleProjectStatusUpdate = async (projectId: number, newStatus: string) => {
-        try {
-            await apiManager.project.updateStatus(projectId, newStatus);
-
-            setProjects(prevProjects =>
-                prevProjects.map(project =>
-                    project.id === projectId ? { ...project, status: newStatus as any } : project
-                )
-            );
-        } catch (err: any) {
-            console.error('Error updating project status:', err);
-            setError('Failed to update project status');
         }
     };
 
@@ -146,51 +83,19 @@ export default function ProjectBoardPage() {
         );
     }
 
-    const openCreateProject = (oldProject: IProject | null = null) => {
-        setProjectUpdate(oldProject);
-        setIsProjectCreateModalOpen(true);
-    }
-
-    const closeCreateProject = () => {
-        setIsProjectCreateModalOpen(false);
-        setProjectUpdate(null);
-    }
-
-    const onCreatedNewProject = (newProject: IProject) => {
-        setProjects((prevProjects) => [...prevProjects, newProject]);
-    }
-
-    const onProjectUpdated = (updatedProject: IProject) => {
-        setProjects((prevProjects) =>
-            prevProjects.map(project =>
-                project.id === updatedProject.id ? updatedProject : project
-            )
-        );
-    }
-
     const openDeleteTaskConfirmation = () => {
         setIsTaskCreateModalOpen(false);
-        setIsDeleteConfirmationModalOpen(true);
-    }
-
-    const openDeleteProjectConfirmation = (project: IProject) => {
-        setIsProjectCreateModalOpen(false);
         setIsDeleteConfirmationModalOpen(true);
     }
 
     const closeConfirmModal = () => {
         setIsDeleteConfirmationModalOpen(false);
         setTaskUpdate(null);
-        setProjectUpdate(null);
     }
 
     const OnConfirm = () => {
         if (taskUpdate) {
             deleteTask();
-        }
-
-        if (projectUpdate) {
-            deleteProject();
         }
     }
 
@@ -203,21 +108,19 @@ export default function ProjectBoardPage() {
         );
     }
 
-    const deleteProject = async () => {
-        await apiManager.project.delete(projectUpdate?.id || 0);
-        setTasks((prevProjects) =>
-            prevProjects.filter((project) =>
-                project.id !== projectUpdate?.id
-            )
-        );
+    const refreshData = (changedData: {type: "project" | "task", data: IProject | ITask}) => {
+        if (changedData.type === "task") {
+            const task = changedData.data as ITask;
+            setTasks(prevTasks => prevTasks.map(t => t.id === task.id ? task : t));
+        }
     }
 
     if (loading) {
         return (
             <AppLayout>
-                <Head title="Project Board" />
+                <Head title="Project Board"/>
 
-                <div className="min-h-screen" style={{ backgroundColor: '#212830' }}>
+                <div className="min-h-screen" style={{backgroundColor: '#212830'}}>
                     <header className="shadow-sm border-b">
                         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
                             <h1 className="text-2xl font-bold text-gray-900">Project Board</h1>
@@ -241,9 +144,9 @@ export default function ProjectBoardPage() {
     if (error) {
         return (
             <AppLayout>
-                <Head title="Project Board" />
+                <Head title="Project Board"/>
 
-                <div className="min-h-screen" style={{ backgroundColor: '#212830' }}>
+                <div className="min-h-screen" style={{backgroundColor: '#212830'}}>
                     <header className="shadow-sm border-b">
                         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
                             <h1 className="text-2xl font-bold text-gray-900">Project Board</h1>
@@ -272,19 +175,13 @@ export default function ProjectBoardPage() {
 
     return (
         <AppLayout>
-            <Head title="Project Board" />
-            <div className="min-h-screen" style={{ backgroundColor: '#212830' }}>
+            <Head title="Project Board"/>
+            <div className="min-h-screen" style={{backgroundColor: '#212830'}}>
                 <header className="shadow-sm border-b">
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
                         <div className="flex items-center justify-between">
                             <h1 className="text-2xl font-bold">Project Board</h1>
                             <div className='flex space-x-2'>
-                                <Button
-                                    className="bg-[#fafafa] hover:bg-[#e7e8ecf3]"
-                                    onClick={() => openCreateProject()}
-                                >
-                                    Create project
-                                </Button>
                                 <Button
                                     className="bg-[#fafafa] hover:bg-[#e7e8ecf3]"
                                     onClick={() => openCreateTask()}
@@ -299,14 +196,13 @@ export default function ProjectBoardPage() {
                 <DndProvider backend={HTML5Backend}>
                     <ProjectBoard
                         tasks={tasks}
-                        projects={projects}
+                        projects={[]}
                         users={users}
                         onTaskStatusUpdate={handleTaskStatusUpdate}
-                        onProjectStatusUpdate={handleProjectStatusUpdate}
                         onTaskClicked={openCreateTask}
-                        onProjectClicked={openCreateProject}
+                        onProjectClicked={() => {}}
                         layout={defaultLayout}
-                        refetchData={fetchTasksAndProjects}
+                        refetchData={refreshData}
                     />
                 </DndProvider>
             </div>
@@ -314,21 +210,12 @@ export default function ProjectBoardPage() {
             <TaskCreateModal
                 open={isTaskCreateModalOpen}
                 oldTask={taskUpdate}
-                projectId={null}
+                projectId={project.id}
                 allTasks={tasks}
                 onClose={closeCreateTask}
                 onCreate={onCreatedNewTask}
                 onUpdate={onTaskUpdated}
                 onDelete={openDeleteTaskConfirmation}
-            />
-
-            <ProjectCreateModal
-                open={isProjectCreateModalOpen}
-                oldProject={projectUpdate}
-                onClose={closeCreateProject}
-                onCreate={onCreatedNewProject}
-                onUpdate={onProjectUpdated}
-                onDelete={openDeleteProjectConfirmation}
             />
 
             <DeleteConfirmationModal

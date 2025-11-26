@@ -31,6 +31,7 @@ export interface IProject {
     "project_lead_id"?: IUser["id"];
     "due_date": string;
     "user_worked_in_project": IUser["id"][];
+    "tasks"?: ITask[];
     "created_at"?: string;
 }
 

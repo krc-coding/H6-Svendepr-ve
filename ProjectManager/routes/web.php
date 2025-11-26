@@ -15,9 +15,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         return Inertia::render('dashboard');
     })->name('dashboard');
 
-    Route::get('projects', function () {
-        return Inertia::render('project-board');
-    })->name('projects');
+    Route::get('projects/{id}', [\App\Http\Controllers\ProjectController::class, 'index'])->name('projects');
 
     Route::get('user-management', function () {
         return Inertia::render('user-management');

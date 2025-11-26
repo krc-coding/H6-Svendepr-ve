@@ -12,7 +12,7 @@ import MultiSelectDropdown, { Items } from "@/components/ui/multi-select-dropdow
 interface TaskProps {
     open: boolean;
     oldTask: ITask | null;
-    projectId: number | null;
+    projectId?: number;
     allTasks: ITask[];
     onClose: () => void;
     onCreate: (task: ITask) => void;
