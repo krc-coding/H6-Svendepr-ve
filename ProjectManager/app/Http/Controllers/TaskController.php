@@ -32,7 +32,7 @@ class TaskController extends Controller
             'project_id' => 'nullable | exists:projects,id',
             'created_by' => 'required | exists:users,id',
             'due_date' => 'required | date | after_or_equal: today',
-            'depends_on' => 'required | array',
+            'depends_on' => 'sometimes | array',
             'depends_on.*' => 'exists:tasks,id',
         ]);
 
@@ -60,7 +60,7 @@ class TaskController extends Controller
             'due_date' => 'required | date | after_or_equal: today',
             'assigned_users' => 'sometimes | array',
             'assigned_users.*' => 'exists:users,id',
-            'depends_on' => 'required | array',
+            'depends_on' => 'sometimes | array',
             'depends_on.*' => 'exists:tasks,id',
         ]);
 
