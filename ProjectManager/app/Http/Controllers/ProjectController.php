@@ -12,6 +12,7 @@ class ProjectController extends Controller
     public function index(int $projectId)
     {
         $project = Project::find($projectId);
+        $project->load(['tasks']);
         return Inertia::render('project-board', ['project' => $project->toArray()]);
     }
 
