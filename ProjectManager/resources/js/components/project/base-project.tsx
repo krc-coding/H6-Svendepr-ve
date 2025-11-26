@@ -14,7 +14,7 @@ interface ProjectBoardProps {
     onTaskClicked: (task: ITask) => void;
     onProjectClicked: (project: IProject) => void;
     layout: ProjectLayout;
-    refetchData: () => void;
+    refetchData: (changedData: {type: "project" | "task", data: IProject | ITask}) => void;
 }
 
 // Updated status columns to match your PHP model constants
