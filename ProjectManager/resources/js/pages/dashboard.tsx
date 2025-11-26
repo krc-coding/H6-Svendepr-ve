@@ -212,6 +212,16 @@ export default function Dashboard() {
         );
     }
 
+    const refreshData = (changedData: {type: "project" | "task", data: IProject | ITask}) => {
+        if (changedData.type === "project") {
+            const project = changedData.data as IProject;
+            setProjects(prevProjects => prevProjects.map(p => p.id === project.id ? project : p));
+        } else {
+            const task = changedData.data as ITask;
+            setTasks(prevTasks => prevTasks.map(t => t.id === task.id ? task : t));
+        }
+    }
+
     if (loading) {
         return (
             <AppLayout>
@@ -306,7 +316,7 @@ export default function Dashboard() {
                         onTaskClicked={openCreateTask}
                         onProjectClicked={openCreateProject}
                         layout={defaultLayout}
-                        refetchData={fetchTasksAndProjects}
+                        refetchData={refreshData}
                     />
                 </DndProvider>
             </div>
@@ -314,7 +324,6 @@ export default function Dashboard() {
             <TaskCreateModal
                 open={isTaskCreateModalOpen}
                 oldTask={taskUpdate}
-                projectId={null}
                 allTasks={tasks}
                 onClose={closeCreateTask}
                 onCreate={onCreatedNewTask}

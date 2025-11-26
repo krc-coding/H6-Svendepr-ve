@@ -1,5 +1,5 @@
 import React from "react";
-import {IProject, IUser} from "@/types/types";
+import {IProject, ITask, IUser} from "@/types/types";
 import {Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle} from "@/components/ui/card";
 import {Badge} from "@/components/ui/badge";
 import {useDrag} from "react-dnd";
@@ -10,7 +10,7 @@ interface ProjectItemProps {
     users: IUser[];
     formatDate: (dateString: string) => string;
     onClick: (project: IProject) => void;
-    refetchData: () => void;
+    refetchData: (changedData: {type: "project" | "task", data: IProject | ITask}) => void;
 }
 
 const ProjectItem = (props: ProjectItemProps) => {
@@ -23,7 +23,9 @@ const ProjectItem = (props: ProjectItemProps) => {
         end: (item, monitor) => {
             const dropResult = monitor.getDropResult<{column: string}>();
             if (project.status !== dropResult?.column && project.id) {
-                apiManager.project.updateStatus(project.id, dropResult?.column ?? project.status).then(() => props.refetchData());
+                project.status = dropResult?.column ?? project.status;
+                props.refetchData({type: "project", data: project});
+                apiManager.project.updateStatus(project.id, dropResult?.column ?? project.status);
             }
         }
     }));
