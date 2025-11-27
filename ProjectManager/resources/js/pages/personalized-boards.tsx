@@ -7,13 +7,13 @@ import { apiManager } from '@/lib/api-manager';
 import AppLayout from "@/layouts/app-layout";
 import TaskCreateModal from '@/components/task-create';
 import ProjectCreateModal from '@/components/project-create';
-import { defaultLayout, ProjectLayout } from "@/layouts/project/default-layout";
+import { personalizedLayout, ProjectLayout } from "@/layouts/project/default-layout";
 import type { SharedData } from "@/types";
 import DeleteConfirmationModal from "@/components/delete-confirmation"
 import {DndProvider} from 'react-dnd'
 import {HTML5Backend} from 'react-dnd-html5-backend'
 
-export default function Dashboard() {
+export default function PersonalizedBoard() {
     const {auth} = usePage<SharedData>().props;
     const [tasks, setTasks] = useState<ITask[]>([]);
     const [projects, setProjects] = useState<IProject[]>([]);
@@ -25,7 +25,7 @@ export default function Dashboard() {
     const [isProjectCreateModalOpen, setIsProjectCreateModalOpen] = useState(false);
     const [selectedProject, setSelectedProject] = useState<IProject | null>(null);
     const [isDeleteConfirmationModalOpen, setIsDeleteConfirmationModalOpen] = useState(false);
-    const [layout, setLayout] = useState<ProjectLayout>(defaultLayout);
+    const [layout, setLayout] = useState<ProjectLayout>(personalizedLayout);
 
     const fetchTasksAndProjects = async () => {
         const [tasksResponse, projectsResponse] = await Promise.all([
@@ -41,10 +41,10 @@ export default function Dashboard() {
                 shouldShow = true;
             } else if (!layout.showOnlyCreatedByMe) {
                 shouldShow = true;
-                // } else if (layout.showOnlyAssignedToMe && task.assigned_to == auth.user.id) {
-                //     shouldShow = true;
-                // } else if (!layout.showOnlyAssignedToMe) {
-                //     shouldShow = true;
+            } else if (layout.showOnlyAssignedToMe && task.assigned_users.includes(auth.user.id)) {
+                shouldShow = true;
+            } else if (!layout.showOnlyAssignedToMe) {
+                shouldShow = true;
             }
 
             if (!shouldShow) return false;
@@ -56,15 +56,13 @@ export default function Dashboard() {
         const validProjects = projectsResponse.data.filter((project: IProject) => {
             let shouldShow = false;
 
-            // We don't have created by on project elements, so we can't filter by it here
-            // if (layout.showOnlyAssignedToMe && project.project_lead_id == auth.user.id) {
-            //     shouldShow = true;
-            // } else if (!layout.showOnlyAssignedToMe) {
-            //     shouldShow = true;
-            // }
+            if (layout.showOnlyAssignedToMe && project.project_lead_id == auth.user.id) {
+                shouldShow = true;
+            } else if (!layout.showOnlyAssignedToMe) {
+                shouldShow = true;
+            }
 
-            // // This make a error where i can't see any project from the server
-            // if (!shouldShow) return false;
+            if (!shouldShow) return false;
             shouldShow = Object.values(PROJECT_STATUS).includes(project.status as any)
             return shouldShow;
         });

@@ -24,4 +24,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('profile', function () {
         return Inertia::render('user/profile');
     });
+
+    Route::get('personalized', function () {
+        return Inertia::render('personalized-boards');
+    });
 });

@@ -47,6 +47,15 @@ const ProjectItem = (props: ProjectItemProps) => {
         return false;
     }
 
+    const getProjectLeadName = (): string => {
+        const user = users.find(user => user.id === project.project_lead_id)
+        var name = "None";
+        if (user) {
+            name = makeDisplayName(user.display_name ?? "");
+        }
+        return name;
+    }
+
     const getUsersAssigned = (): IUser[] => {
         return users.filter(user => project.user_worked_in_project.includes(user.id));
     }
@@ -97,7 +106,7 @@ const ProjectItem = (props: ProjectItemProps) => {
                 <div className="flex flex-col space-y-2">
                     {project.project_lead_id && (
                         <div className="text-xs">
-                            Lead: {project.project_lead_id}
+                            Lead: {getProjectLeadName()}
                         </div>
                     )}
                     <div className="flex justify-between items-center text-xs">

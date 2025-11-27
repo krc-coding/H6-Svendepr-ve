@@ -195,7 +195,7 @@ export default function ProjectBoardPage() {
                         onTaskStatusUpdate={handleTaskStatusUpdate}
                         onTaskClicked={openCreateTask}
                         onProjectClicked={() => {}}
-                        layout={defaultLayout}
+                        layout={layout}
                         refetchData={refreshData}
                     />
                 </DndProvider>

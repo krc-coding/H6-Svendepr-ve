@@ -52,3 +52,6 @@
     - Task create/edit
     - User management
     - User create/edit
+
+### 27-11-25
+- Made personalized project boards
