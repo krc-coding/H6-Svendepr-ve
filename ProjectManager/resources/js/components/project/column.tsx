@@ -34,6 +34,27 @@ const column = (props: ColumnProps) => {
         return project?.name;
     };
 
+    const getCreatedByName = (userId: number | null | undefined) => {
+        if (!userId) return null;
+        const user = users.find(u => u.id === userId);
+        return makeDisplayName(user?.display_name);
+    }
+
+    const makeDisplayName = (display_name: string | null | undefined) => {
+        if (!display_name) return null;
+
+        const trimmed = display_name.trim();
+
+        // Take initials
+        if (trimmed.includes(" ")) {
+            const parts = trimmed.split(/\s+/);
+            return (parts[0][0] + (parts[1]?.[0] || "")).toUpperCase();
+        }
+
+        // Take first two letters
+        return trimmed.slice(0, 2);
+    }
+
     return (
         // @ts-ignore
         <div className="flex-shrink-0 w-80" ref={drop}>
@@ -51,6 +72,7 @@ const column = (props: ColumnProps) => {
                         project={project}
                         users={users}
                         formatDate={formatDate}
+                        makeDisplayName={makeDisplayName}
                         onClick={onProjectClicked}
                         key={'project-' + project.id}
                         refetchData={refetchData}
@@ -63,6 +85,7 @@ const column = (props: ColumnProps) => {
                         task={task}
                         formatDate={formatDate}
                         getProjectName={getProjectName}
+                        getCreatedByName={getCreatedByName}
                         onClick={onTaskClicked}
                         key={'task-' + task.id}
                         refetchData={refetchData}

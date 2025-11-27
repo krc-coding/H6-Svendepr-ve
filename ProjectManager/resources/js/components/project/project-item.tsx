@@ -9,12 +9,13 @@ interface ProjectItemProps {
     project: IProject;
     users: IUser[];
     formatDate: (dateString: string) => string;
+    makeDisplayName: (display_name: string | null | undefined) => string | null;
     onClick: (project: IProject) => void;
     refetchData: (changedData: {type: "project" | "task", data: IProject | ITask}) => void;
 }
 
 const ProjectItem = (props: ProjectItemProps) => {
-    const {project, users, formatDate, onClick} = props;
+    const {project, users, formatDate, makeDisplayName, onClick} = props;
     const [{isDragging}, drag] = useDrag(() => ({
         type: "drop-item",
         collect: monitor => ({
@@ -51,26 +52,13 @@ const ProjectItem = (props: ProjectItemProps) => {
         const user = users.find(user => user.id === project.project_lead_id)
         var name = "None";
         if (user) {
-            name = makeDisplayName(user.display_name ?? "");
+            name = makeDisplayName(user.display_name) ?? "";
         }
         return name;
     }
 
     const getUsersAssigned = (): IUser[] => {
         return users.filter(user => project.user_worked_in_project.includes(user.id));
-    }
-
-    const makeDisplayName = (display_name: string): string => {
-        const trimmed = display_name.trim();
-
-        // Take initials
-        if (trimmed.includes(" ")) {
-            const parts = trimmed.split(/\s+/);
-            return (parts[0][0] + (parts[1]?.[0] || "")).toUpperCase();
-        }
-
-        // Take first two letters
-        return trimmed.slice(0, 2);
     }
 
     return (
