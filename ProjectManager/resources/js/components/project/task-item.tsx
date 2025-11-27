@@ -8,13 +8,14 @@ import {apiManager} from "@/lib/api-manager";
 interface TaskItemProps {
     task: ITask;
     getProjectName: (projectId: number | null | undefined) => string | null | undefined;
+    getCreatedByName: (userId: number | null | undefined) => string | null | undefined;
     formatDate: (dateString: string) => string;
     onClick: (task: ITask) => void;
     refetchData: (changedData: {type: "project" | "task", data: IProject | ITask}) => void;
 }
 
 const TaskItem = (props: TaskItemProps) => {
-    const {task, getProjectName, formatDate, onClick} = props;
+    const {task, getProjectName, getCreatedByName, formatDate, onClick} = props;
     const [{isDragging}, drag] = useDrag(() => ({
         type: "drop-item",
         collect: monitor => ({
@@ -90,12 +91,12 @@ const TaskItem = (props: TaskItemProps) => {
                 <div className="flex flex-col space-y-2">
                     {task.project_id && (
                         <div className="text-xs">
-                            Project: {task.project_id}
+                            Project: {getProjectName(task.project_id)}
                         </div>
                     )}
                     {task.created_by && (
                         <div className="text-xs">
-                            Created by: {task.created_by}
+                            Created by: {getCreatedByName(task.created_by)}
                         </div>
                     )}
                     <div className="flex justify-between items-center text-xs">
