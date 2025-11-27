@@ -70,3 +70,10 @@
 
 - Updated refresh logic to prevent page reload.
 - Updated project board to show only tasks assigned to the project.
+- Looked into user management to see if we could easily make roles work across all routes. (User management is challenging to implement in a short period of time)
+
+## 2025-11-27:
+
+- Status meeting.
+- discussion about remaining tasks.
+- Worked on cleaning up the code.
