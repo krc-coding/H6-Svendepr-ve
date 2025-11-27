@@ -16,3 +16,11 @@ export const defaultLayout = {
     filter: [],
 }
 
+export const personalizedLayout = {
+    columns: ['Open', 'In process', 'Completed', 'Cancelled'],
+    showTasks: true,
+    showProjects: true,
+    showOnlyAssignedToMe: true,
+    showOnlyCreatedByMe: true,
+    filter: [],
+}
