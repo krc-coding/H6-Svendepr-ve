@@ -1,5 +1,6 @@
 import { type SharedData } from '@/types';
 import { Head, Link, usePage } from '@inertiajs/react';
+import {useEffect} from "react";
 
 export default function Welcome({
     canRegister = true,
@@ -7,6 +8,12 @@ export default function Welcome({
     canRegister?: boolean;
 }) {
     const { auth } = usePage<SharedData>().props;
+
+    useEffect(() => {
+        if (auth.user) {
+            window.location.href = "/dashboard";
+        }
+    }, []);
 
     return (
         <>
