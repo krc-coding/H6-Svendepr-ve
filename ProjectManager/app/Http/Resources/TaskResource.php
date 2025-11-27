@@ -22,6 +22,7 @@ class TaskResource extends JsonResource
             'description' => $this->description,
             'status' => $this->status,
             'project_id' => $this->project_id,
+            'created_by' => $this->created_by,
             'assigned_users' => $this->assignedTo?->pluck('id') ?? [],
             'depends_on' => $this->getTaskDependies(),
             'due_date' => $this->due_date,

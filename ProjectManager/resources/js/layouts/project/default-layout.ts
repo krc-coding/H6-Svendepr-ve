@@ -24,3 +24,12 @@ export const personalizedLayout = {
     showOnlyCreatedByMe: true,
     filter: [],
 }
+
+export const projectLayout = {
+    columns: ['Open', 'In process', 'Completed', 'Cancelled'],
+    showTasks: true,
+    showProjects: false,
+    showOnlyAssignedToMe: false,
+    showOnlyCreatedByMe: false,
+    filter: [],
+}

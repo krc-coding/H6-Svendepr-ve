@@ -14,11 +14,15 @@ import {DndProvider} from 'react-dnd'
 import {HTML5Backend} from 'react-dnd-html5-backend'
 
 interface DashboardProps {
-    projectLayout?: ProjectLayout
+    title?: string;
+    projectLayout?: ProjectLayout;
+    overrideTasks?: ITask[];
+    overrideProjects?: IProject[];
+    projectViewing?: IProject;
 }
 
 export default function Dashboard(props: DashboardProps) {
-    const {projectLayout} = props;
+    const {title, projectLayout, overrideTasks, overrideProjects, projectViewing} = props;
     const {auth} = usePage<SharedData>().props;
     const [tasks, setTasks] = useState<ITask[]>([]);
     const [projects, setProjects] = useState<IProject[]>([]);
@@ -32,14 +36,20 @@ export default function Dashboard(props: DashboardProps) {
     const [isDeleteConfirmationModalOpen, setIsDeleteConfirmationModalOpen] = useState(false);
     const [layout, setLayout] = useState<ProjectLayout>(projectLayout ?? defaultLayout);
 
-    const fetchTasksAndProjects = async () => {
-        const [tasksResponse, projectsResponse] = await Promise.all([
-            apiManager.task.getAll(),
-            apiManager.project.getAll()
-        ]);
+    const fetchTasks = async () => {
+        if (!layout.showTasks) return;
+
+        var tasks;
+        if (overrideTasks != null) {
+            tasks = overrideTasks;
+        }
+        else {
+            const tasksResponse = await apiManager.task.getAll();
+            tasks = tasksResponse.data;
+        }
 
         // Filter out any tasks with invalid statuses
-        const validTasks = tasksResponse.data.filter((task: ITask) => {
+        const validTasks = tasks.filter((task: ITask) => {
             let shouldShow = false;
 
             if (layout.showOnlyCreatedByMe && task.created_by == auth.user.id) {
@@ -57,8 +67,23 @@ export default function Dashboard(props: DashboardProps) {
             return shouldShow;
         });
 
+        setTasks(validTasks);
+    };
+    
+    const fetchProjects = async () => {
+        if (!layout.showProjects) return;
+
+        var projects
+        if (overrideProjects != null) {
+            projects = overrideProjects;
+        }
+        else {
+            const projectsResponse = await apiManager.project.getAll();
+            projects = projectsResponse.data;
+        }
+
         // Filter out any projects with invalid statuses
-        const validProjects = projectsResponse.data.filter((project: IProject) => {
+        const validProjects = projects.filter((project: IProject) => {
             let shouldShow = false;
 
             if (layout.showOnlyAssignedToMe && project.project_lead_id == auth.user.id) {
@@ -72,7 +97,6 @@ export default function Dashboard(props: DashboardProps) {
             return shouldShow;
         });
 
-        setTasks(validTasks);
         setProjects(validProjects);
     };
 
@@ -85,7 +109,9 @@ export default function Dashboard(props: DashboardProps) {
         try {
             setLoading(true);
             setError(null);
-            fetchTasksAndProjects();
+
+            fetchTasks();
+            fetchProjects();
             fetchUsers();
         } catch (err: any) {
             console.error('Error fetching data:', err);
@@ -232,7 +258,7 @@ export default function Dashboard(props: DashboardProps) {
                 <div className="min-h-screen" style={{ backgroundColor: '#212830' }}>
                     <header className="shadow-sm border-b">
                         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-                            <h1 className="text-2xl font-bold text-gray-900">Project Board</h1>
+                            <h1 className="text-2xl font-bold text-gray-900">{title ?? "Project Board"}</h1>
                             <p className="text-gray-600 mt-1">
                                 Manage your projects and tasks with this Kanban-style board
                             </p>
@@ -258,7 +284,7 @@ export default function Dashboard(props: DashboardProps) {
                 <div className="min-h-screen" style={{ backgroundColor: '#212830' }}>
                     <header className="shadow-sm border-b">
                         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-                            <h1 className="text-2xl font-bold text-gray-900">Project Board</h1>
+                            <h1 className="text-2xl font-bold text-gray-900">{title ?? "Project Board"}</h1>
                             <p className="text-gray-600 mt-1">
                                 Manage your projects and tasks with this Kanban-style board
                             </p>
@@ -289,7 +315,7 @@ export default function Dashboard(props: DashboardProps) {
                 <header className="shadow-sm border-b">
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
                         <div className="flex items-center justify-between">
-                            <h1 className="text-2xl font-bold">Project Board</h1>
+                            <h1 className="text-2xl font-bold">{title ?? "Project Board"}</h1>
                             <div className='flex space-x-2'>
                                 {layout.showProjects && (
                                     <Button
@@ -333,6 +359,7 @@ export default function Dashboard(props: DashboardProps) {
                 oldTask={selectedTask}
                 allTasks={tasks}
                 allUsers={users}
+                projectId={projectViewing?.id ?? undefined}
                 onClose={closeCreateTask}
                 onCreate={onCreatedNewTask}
                 onUpdate={onTaskUpdated}
