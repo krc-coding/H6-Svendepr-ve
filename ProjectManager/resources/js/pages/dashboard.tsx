@@ -13,7 +13,12 @@ import DeleteConfirmationModal from "@/components/delete-confirmation"
 import {DndProvider} from 'react-dnd'
 import {HTML5Backend} from 'react-dnd-html5-backend'
 
-export default function Dashboard() {
+interface DashboardProps {
+    projectLayout?: ProjectLayout
+}
+
+export default function Dashboard(props: DashboardProps) {
+    const {projectLayout} = props;
     const {auth} = usePage<SharedData>().props;
     const [tasks, setTasks] = useState<ITask[]>([]);
     const [projects, setProjects] = useState<IProject[]>([]);
@@ -25,7 +30,7 @@ export default function Dashboard() {
     const [isProjectCreateModalOpen, setIsProjectCreateModalOpen] = useState(false);
     const [selectedProject, setSelectedProject] = useState<IProject | null>(null);
     const [isDeleteConfirmationModalOpen, setIsDeleteConfirmationModalOpen] = useState(false);
-    const [layout, setLayout] = useState<ProjectLayout>(defaultLayout);
+    const [layout, setLayout] = useState<ProjectLayout>(projectLayout ?? defaultLayout);
 
     const fetchTasksAndProjects = async () => {
         const [tasksResponse, projectsResponse] = await Promise.all([
@@ -41,10 +46,10 @@ export default function Dashboard() {
                 shouldShow = true;
             } else if (!layout.showOnlyCreatedByMe) {
                 shouldShow = true;
-                // } else if (layout.showOnlyAssignedToMe && task.assigned_to == auth.user.id) {
-                //     shouldShow = true;
-                // } else if (!layout.showOnlyAssignedToMe) {
-                //     shouldShow = true;
+            } else if (layout.showOnlyAssignedToMe && task.assigned_users.includes(auth.user.id)) {
+                shouldShow = true;
+            } else if (!layout.showOnlyAssignedToMe) {
+                shouldShow = true;
             }
 
             if (!shouldShow) return false;
@@ -56,22 +61,19 @@ export default function Dashboard() {
         const validProjects = projectsResponse.data.filter((project: IProject) => {
             let shouldShow = false;
 
-            // We don't have created by on project elements, so we can't filter by it here
-            // if (layout.showOnlyAssignedToMe && project.project_lead_id == auth.user.id) {
-            //     shouldShow = true;
-            // } else if (!layout.showOnlyAssignedToMe) {
-            //     shouldShow = true;
-            // }
+            if (layout.showOnlyAssignedToMe && project.project_lead_id == auth.user.id) {
+                shouldShow = true;
+            } else if (!layout.showOnlyAssignedToMe) {
+                shouldShow = true;
+            }
 
-            // // This make a error where i can't see any project from the server
-            // if (!shouldShow) return false;
+            if (!shouldShow) return false;
             shouldShow = Object.values(PROJECT_STATUS).includes(project.status as any)
             return shouldShow;
         });
 
         setTasks(validTasks);
         setProjects(validProjects);
-
     };
 
     const fetchUsers = async () => {
@@ -289,18 +291,23 @@ export default function Dashboard() {
                         <div className="flex items-center justify-between">
                             <h1 className="text-2xl font-bold">Project Board</h1>
                             <div className='flex space-x-2'>
-                                <Button
-                                    className="bg-[#fafafa] hover:bg-[#e7e8ecf3]"
-                                    onClick={() => openCreateProject()}
-                                >
-                                    Create project
-                                </Button>
-                                <Button
-                                    className="bg-[#fafafa] hover:bg-[#e7e8ecf3]"
-                                    onClick={() => openCreateTask()}
-                                >
-                                    Create task
-                                </Button>
+                                {layout.showProjects && (
+                                    <Button
+                                        className="bg-[#fafafa] hover:bg-[#e7e8ecf3]"
+                                        onClick={() => openCreateProject()}
+                                    >
+                                        Create project
+                                    </Button>
+                                )}
+                                
+                                {layout.showTasks && (
+                                    <Button
+                                        className="bg-[#fafafa] hover:bg-[#e7e8ecf3]"
+                                        onClick={() => openCreateTask()}
+                                    >
+                                        Create task
+                                    </Button>
+                                )}
                             </div>
                         </div>
                     </div>
