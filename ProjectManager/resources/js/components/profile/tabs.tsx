@@ -20,7 +20,7 @@ const tabItems: TabItem[] = [
     },
 ];
 
-const Tabs = ({ children }: PropsWithChildren) => {
+const Tabs = () => {
     const [activeTab, setActiveTab] = React.useState<string>('profile');
 
     const getTabContent = () => {

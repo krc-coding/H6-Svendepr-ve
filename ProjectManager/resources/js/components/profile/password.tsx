@@ -47,7 +47,6 @@ const Password = () => {
                 title="Update password"
                 description="Ensure your account is using a long, random password to stay secure"
             />
-
             <form
                 onSubmit={updatePassword}
                 className="space-y-6"
