@@ -101,7 +101,7 @@ erDiagram
         description TEXT
         status ENUM
         account_id BIGINT FK
-        project_id BIGINT FK ALLOW NULL
+        project_id BIGINT FK
         created_by_id BIGINT FK
         due_date DATE
         created_at TIMESTAMP
@@ -124,13 +124,24 @@ erDiagram
         updated_at TIMESTAMP
     }
 
+    account {
+        id BIGINT PK
+        name VARCHAR(255)
+        created_at TIMESTAMP
+        updated_at TIMESTAMP
+    }
+
     users ||--o{ projects: "project_lead"
     users ||--o{ tasks: "created_by"
     users ||--o{ task_user: "assigned_to"
     projects ||--o{ tasks: "contains"
+    projects ||--o{ users: "account_id"
     tasks ||--o{ task_user: "assigned_to_users"
     tasks ||--o{ task_dependencies: "blocks"
     tasks ||--o{ task_dependencies: "blocked_by"
+    account ||--o{ users
+    account ||--o{ projects
+    account ||--0{ tasks
 ```
 
 ---
