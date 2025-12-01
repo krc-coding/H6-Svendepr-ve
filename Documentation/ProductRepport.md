@@ -133,15 +133,14 @@ erDiagram
 
     users ||--o{ projects: "project_lead"
     users ||--o{ tasks: "created_by"
-    users ||--o{ task_user: "assigned_to"
+    users ||--o{ task_user: "assigned_to_tasks"
     projects ||--o{ tasks: "contains"
-    projects ||--o{ users: "account_id"
     tasks ||--o{ task_user: "assigned_to_users"
     tasks ||--o{ task_dependencies: "blocks"
     tasks ||--o{ task_dependencies: "blocked_by"
-    account ||--o{ users
-    account ||--o{ projects
-    account ||--0{ tasks
+    account ||--o{ users: ""
+    account ||--o{ projects: ""
+    account ||--o{ tasks: ""
 ```
 
 ---
