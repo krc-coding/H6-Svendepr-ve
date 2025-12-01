@@ -193,6 +193,33 @@ erDiagram
 
 # User Guide
 
+## Introduction
+
+There are three user types, each with different responsibilities:
+
+- **Students**: Can view schedules and request room bookings without needing an account.
+- **Teachers**: Can log in to book rooms and manage booking requests submitted by students.
+- **Admins**: Have full access to manage rooms and teacher accounts.
+
+## User Guide
+
+## Project management Guide
+
+*can do everything a user can do.*
+
+## Admin Guide
+
+## Troubleshooting
+
+### project assign
+
+- m 
+
+## Final Notes
+
+- Always log out after using the system on shared or public computers.
+- For technical issues, contact our support.
+
 ---
 
 # Code documentation
