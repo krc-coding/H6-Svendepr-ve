@@ -33,3 +33,11 @@ title: Process report
 
 ## Conclusion
 
+We've achieved most of our goals, in making the project management app.  
+We didn't get around to implementing all the features we wanted to, but we got through the most important ones.  
+We had begun working towards implementing custom layout support, which would be a part of the addon system. 
+
+Some of the features we didn't get around to are:
+- Creating a modular addon system.
+- Implementing backend handling of role.
+- Updating auth pages UI. (login, register and initial page)
