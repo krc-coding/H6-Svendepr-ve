@@ -52,17 +52,26 @@ Short description of the project.
 
 Any issues discovered during development.
 
-- account management.
+- account management:
     - Currently account exists only in the database.
     - It should be possible to see the name of the account.
     - It should be possible to update the name of the account.
 
-- User roles
+- User roles:
     - You can assign a role to users.
-    - Roles has no real meaning as the handling of different roles isn't fully implemented, so currently it treats all users as admins.
+    - Roles has no real meaning as the handling of different roles isn't fully implemented, so currently it treats all
+      users as admins.
 
-- Project overview
-    - Can't see user assigned to task, but can still assign to. 
+- Project overview:
+    - Can't see user assigned to task, but can still assign to.
+
+- Welcome and auth pages:
+    - Missing UI overhaul.
+
+- User profile:
+    - The input fields are not styled properly.
+
+- Updated logo.
 
 ---
 
@@ -71,13 +80,13 @@ Any issues discovered during development.
 The system setup isn't very complex, as it's a simple project management app.
 
 ```mermaid
-graph LR;
+graph LR
+;
     B[Web page]
     C[Backend]
     Q[(Database)]
-    
-    B-->C
-    C-->Q
+    B --> C
+    C --> Q
 ```
 
 ---
