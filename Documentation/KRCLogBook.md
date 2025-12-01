@@ -70,3 +70,20 @@
 
 - Updated refresh logic to prevent page reload.
 - Updated project board to show only tasks assigned to the project.
+- Looked into user management to see if we could easily make roles work across all routes. (User management is challenging to implement in a short period of time)
+
+## 2025-11-27:
+
+- Status meeting.
+- discussion about remaining tasks.
+- Worked on cleaning up the code.
+
+## 2025-11-28:
+
+- Looked through the case to see if we had any missing critical features.
+- Found no missing features, excluding MLP milestone features.
+- Looked into implementing proper role handling, though didn't find a way to do it in a short period of time.
+
+## 2025-12-01:
+
+- Discussed how to write the documentation.
