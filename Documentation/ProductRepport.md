@@ -66,13 +66,21 @@ Any issues discovered during development.
 
 # Domain model:
 
-Small mermaid diagrams of the system setup.
+The system setup isn't very complex, as it's a simple project management app.
+
+```mermaid
+graph LR;
+    B[Web page]
+    C[Backend]
+    Q[(Database)]
+    
+    B-->C
+    C-->Q
+```
 
 ---
 
 # Database model:
-
-Small mermaid diagrams of the database setup.
 
 ```mermaid
 erDiagram
