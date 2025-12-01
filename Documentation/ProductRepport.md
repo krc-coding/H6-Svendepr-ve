@@ -1,10 +1,26 @@
 ---
-title: Room booking system
+title: Project management app
 ---
 
 # Project Overview
 
-Short description of the project.
+The project management app is a streamlined web-based project management tool, designed to help businesses manage their
+projects more efficiently and give an overview of which projects people are working on.
+
+The web interface is designed to be simple and intuitive to use.
+
+#### It consists of two main components:
+
+- A web-based interface for users to manage their projects and tasks.
+- A backend API service that handles all data management and business logic.
+
+#### There are only 3 user roles:
+
+- Admin: Can handle user management.
+- Project manager: Can create, edit, and delete projects and tasks.
+- User: Can create, edit, and delete tasks.
+
+---
 
 # Functional requirements:
 
