@@ -186,3 +186,13 @@ erDiagram
 - [MySQL](https://www.mysql.com/)
 
 ---
+
+# Dev setup guide
+
+---
+
+# User Guide
+
+---
+
+# Code documentation
