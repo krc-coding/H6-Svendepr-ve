@@ -8,8 +8,6 @@ Short description of the project.
 
 # Functional requirements:
 
-The functional requirements to implement the MVP.
-
 ## Admin
 
 - User authentication.
@@ -26,30 +24,27 @@ The functional requirements to implement the MVP.
 ## Systems
 
 - Task management. (create, edit, delete)
-    - can be created as part of a project, or as a standalone task.
-    - can be assigned to any amount of users.
+    - Can be created as part of a project, or as a standalone task.
+    - Can be assigned to any amount of users.
     - Can be created by all users.
     - Can be marked as blocking other tasks.
-    - Can have a status. (Open, In progress, Done, Cancelled, Blocked)
+    - Can have a status. (Open, In progress, Done, Cancelled)
 - Project management. (create, edit, delete)
-    - Groups of tasks.
+    - Can have multiple tasks in a single project.
+    - Can create tasks as part of the project.
     - Can be assigned to a single user, who acts as project lead.
     - Can only be created by project managers.
-    - List of users who have worked on the project.
-    - Can have a status. (Open, In progress, Billing, Done, Cancelled)
+    - List of users who have worked on the project, to be shown on the project card in the dashboards.
+    - Can have a status. (Open, In progress, Done, Cancelled)
 
 ## Dashboards
 
 - Management overview. (kanban style board with all tasks across all projects and users)
-    - Primary dashboard for project managers.
-    - Only shows projects and standalone tasks.
-    -
+    - The default dashboard shows all tasks and projects.
 - Personalized dashboard. (Specialized for user, derives from user overview)
-    - Shows all tasks/projects assigned to the user.
-    -
-- Project overview. (Specialized for project, derives from user overview)
+    - Shows all tasks/projects assigned to/created by the user.
+- Project overview. (Specialized for project derives from user overview)
     - Shows all tasks assigned to the project.
-    -
 
 ---
 
