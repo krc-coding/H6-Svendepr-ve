@@ -57,6 +57,10 @@ Any issues discovered during development.
     - It should be possible to see the name of the account.
     - It should be possible to update the name of the account.
 
+- User roles
+    - You can assign a role to users.
+    - Roles has no real meaning as the handling of different roles isn't fully implemented, so currently it treats all users as admins.
+
 - Project overview
     - Can't see user assigned to task, but can still assign to. 
 
