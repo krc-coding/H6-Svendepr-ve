@@ -32,7 +32,7 @@ const Profile = () => {
             });
             setData(data);
         });
-    }
+    };
 
     return (
         <>
