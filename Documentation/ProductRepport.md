@@ -62,6 +62,9 @@ Any issues discovered during development.
     - It should be possible to see the name of the account.
     - It should be possible to update the name of the account.
 
+- Project overview
+    - Can't see user assigned to task, but can still assign to. 
+
 ---
 
 # Domain model:
