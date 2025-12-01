@@ -55,3 +55,6 @@
 
 ### 27-11-25
 - Made personalized project boards
+
+### 1-12-25
+- Making documentation together
