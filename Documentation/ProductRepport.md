@@ -146,7 +146,8 @@ erDiagram
 
 ## Website
 
-- [Laravel blade templates](https://laravel.com/docs/12.x/blade)
+- [Typescript](https://www.typescriptlang.org/)
+- [React](https://reactjs.org/)
 
 ## Database
 
