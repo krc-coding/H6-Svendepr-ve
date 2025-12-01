@@ -57,6 +57,11 @@ The functional requirements to implement the MVP.
 
 Any issues discovered during development.
 
+- account management.
+    - Currently account exists only in the database.
+    - It should be possible to see the name of the account.
+    - It should be possible to update the name of the account.
+
 ---
 
 # Domain model:
