@@ -74,12 +74,11 @@ erDiagram
     users {
         id BIGINT PK
         name VARCHAR(255)
-        email VARCHAR(255)
-        email_verified_at TIMESTAMP
-        password VARCHAR(255)
         display_name VARCHAR(255)
+        account_id BIGINT FK
+        email VARCHAR(255)
         role ENUM
-        remember_token VARCHAR(100)
+        password VARCHAR(255)
         created_at TIMESTAMP
         updated_at TIMESTAMP
     }
@@ -89,6 +88,7 @@ erDiagram
         name VARCHAR(255)
         description TEXT
         status ENUM
+        account_id BIGINT FK
         project_lead_id BIGINT FK
         due_date DATE
         created_at TIMESTAMP
@@ -100,8 +100,8 @@ erDiagram
         title VARCHAR(255)
         description TEXT
         status ENUM
-        priority ENUM
-        project_id BIGINT FK
+        account_id BIGINT FK
+        project_id BIGINT FK ALLOW NULL
         created_by_id BIGINT FK
         due_date DATE
         created_at TIMESTAMP
@@ -111,14 +111,6 @@ erDiagram
     task_user {
         id BIGINT PK
         task_id BIGINT FK
-        user_id BIGINT FK
-        created_at TIMESTAMP
-        updated_at TIMESTAMP
-    }
-
-    project_user {
-        id BIGINT PK
-        project_id BIGINT FK
         user_id BIGINT FK
         created_at TIMESTAMP
         updated_at TIMESTAMP
