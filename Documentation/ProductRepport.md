@@ -78,6 +78,9 @@ Any issues discovered during development.
     - Roles has no real meaning as the handling of different roles isn't fully implemented, so currently it treats all
       users as admins.
 
+- User management
+    - Can't reset user password
+
 - Project overview:
     - Can't see user assigned to task, but can still assign to.
 
@@ -213,23 +216,83 @@ erDiagram
 
 There are three user types, each with different responsibilities:
 
-- **Students**: Can view schedules and request room bookings without needing an account.
-- **Teachers**: Can log in to book rooms and manage booking requests submitted by students.
-- **Admins**: Have full access to manage rooms and teacher accounts.
+- **User**: Can log in, create edit and delete tasks
+- **Project managemant**: Can log in, Create edit and delete projects and tasks
+- **Admins**: Can log in, have full access to everything
 
 ## User Guide
 
+### Login
+
+Every thing is locked behind login
+
+### Boards
+
+There are **three types of boards** available in the system:
+
+- Dash board
+- Project board
+- Personalized board
+
+Each **task** card includes:
+- Title
+- Description
+- Status
+- Created at
+- Due date
+- Blocked
+
+Each **project** card includes:
+- Title
+- Description
+- Status
+- Created at
+- Due date
+- Users assigned to one ore more tasks
+
+### Dash board
+
+- Can see every task and project
+- Can create edit and delete tasks
+
+### Project board
+
+*To open click on a project, in the edit there is a button "Open project"*
+
+- Can only see task that has been created for this project
+- Can create edit and delete tasks, only for this project
+
+### Personalized board
+
+- Can see all task and projects you have created and been asigned to
+- Can create edit and delete tasks
+
 ## Project management Guide
 
-*can do everything a user can do.*
+*Can do everything a user can do.*
+
+### Dash board
+
+- Can create edit and delete projects
+
+### Personalized board
+
+- Can create edit and delete projects
 
 ## Admin Guide
 
+*Can do everything a user and project management can do.*
+
+### User management
+
+- Can create edit and delete users
+- Can reset user password
+
 ## Troubleshooting
 
-### project assign
+### Project board
 
-- m 
+- You can't see users assign to tasks, but you can still assign users to tasks, it will override what users was assigned before
 
 ## Final Notes
 
