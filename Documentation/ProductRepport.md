@@ -208,6 +208,88 @@ erDiagram
 
 # Dev setup guide
 
+## Requirements
+
+- Docker
+- Docker Compose
+
+or
+
+- php 8.3.x NTS (Not Thread Safe)
+- Composer
+- MySql
+- Npm
+- Node
+
+My recommendation is to use docker, as it's easier to set up, and doesn't require any additional software to be installed.
+
+## Code base
+
+The code base is located on GitHub.  
+Repository: <https://github.com/krc-coding/H6-Svendepr-ve.git>
+
+To use the project, you can either clone the repository or download the zip.  
+Cloning is recommended if you want to contribute to the project, or if you want to use the latest version without having to redownload the zip every time. 
+
+To clone the repository use one of the following methods:
+1. using git over https: `git clone https://github.com/krc-coding/H6-Svendepr-ve.git`
+2. using git over ssh: `git ssh git@github.com:krc-coding/H6-Svendepr-ve.git`
+
+If you don't want to use git, then you can download the zip file from the repository page.
+
+## Before you start
+
+Make a copy of the `.env.example` file and rename it to `.env`.  
+Update the database related settings in the `.env` file, and make sure that the database exists.  
+If you're using docker, then the database will be created automatically, based on the settings in the `.env` file.
+
+## Setup with docker
+
+*Skip this section if you are not using docker.*
+
+Once you have the code base locally, open a terminal and navigate to the `ProjectManager` folder of the code base.  
+
+When setting up the project the first time, it'll take some extra time as it has to download all the required resources.  
+But after that it'll be much faster to start.
+
+To start the project, run the following command: `docker-compose up -d`  
+To stop the project, run the following command: `docker-compose down`
+
+All commands in the rest of the guide should be run from within the container.  
+To open a terminal within the container: `docker exec -it ProjectManager-server bash`
+
+## Setup without docker
+
+*Skip this section if you are not using docker.*
+
+1. Open a terminal and navigate to the `ProjectManager` folder of the code base.
+2. Install composer dependencies: `composer install`
+3. Install npm dependencies: `npm ci`
+
+## Setting up the backend
+
+Before you can start using the backend, you first need to generate a key for the application, which is used to encrypt the passwords.  
+To generate the key, run the following command: `php artisan key:generate`
+
+## Setting up the database
+
+To set up the database, with all the required tables and relations, run the following command: `php artisan migrate`  
+If you want to reset the database, run the following command: `php artisan migrate:fresh`
+
+## Starting the backend
+
+*This is only needed if you are not using docker, as the docker container has a nginx web server which handles exposing the backend.*  
+
+To start the backend, run the following command: `php artisan serve`
+
+## Starting the frontend
+
+Before you can start using the frontend, you first need to build the pre compiled assets.  
+To build the assets, run the following command: `npm run build`.
+
+If you want to start the frontend in development mode, run the following command: `npm run dev`.  
+This will start the frontend in development mode, and will automatically rebuild the assets when changes are made.
+
 ---
 
 # User Guide
