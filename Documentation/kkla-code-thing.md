@@ -209,11 +209,13 @@ The `setIsTaskCreateModalOpen` is a boolean and is easy to change the same with 
 ### Component Props
 
 The following examples can be found in  
-`ProjectManager\resources\js\pages\dashboard.tsx`
+`ProjectManager\resources\js\pages\dashboard.tsx`  
+`ProjectManager\resources\js\pages\project-board.tsx`  
+`ProjectManager\resources\js\pages\personalized-boards.tsx`  
 
 This interface is private, it's use to tell that the Dashboard wants, as shown in the second block.  
 The question mark is used to tell that this item is not need, but if it is in, it needs to be what comes after semicolon.  
-E.g. title is not pressent in the example in the second block, but if was, it needs to be a string.
+E.g. title is not pressent in `PersonalizedBoard`, but is in `ProjectBoardPage`.
 
 ```ts
 interface DashboardProps {
@@ -230,5 +232,16 @@ export default function Dashboard(props: DashboardProps)
 ```ts
 export default function PersonalizedBoard() {
     return <Dashboard projectLayout={personalizedLayout} />
+}
+
+export default function ProjectBoardPage() {
+    const {auth, project} = usePage<ExtendedSharedData>().props;
+
+    return <Dashboard
+        projectLayout={projectLayout}
+        projectViewing={project}
+        overrideTasks={project.tasks}
+        title={`Project Board: ${project.name}`}
+    />
 }
 ```
