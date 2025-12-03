@@ -23,7 +23,10 @@ export const apiManager = {
                 "current_password": current_password,
                 "password": password,
                 "password_confirmation": passwordConfirmed
-            })
+            });
+        },
+        "resetPassword": (userId: number) => {
+            return axios.patch('/api/user/reset_password/' + userId);
         },
         "delete": (userId: number) => {
             return axios.delete('/api/user/' + userId);

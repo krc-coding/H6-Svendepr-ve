@@ -76,9 +76,7 @@ const UserCreateModal = (props: UserProps) => {
 
                 <form onSubmit={handleSubmit} className="space-y-4 max-w-md mx-auto p-4">
                     <div>
-                        <label className="block mb-1">
-                            {oldUser ? "Display name" : "Name"}
-                        </label>
+                        <label className="block mb-1">Name</label>
                         <Input
                             type="text"
                             value={name}

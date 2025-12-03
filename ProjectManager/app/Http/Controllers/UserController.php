@@ -90,6 +90,16 @@ class UserController extends Controller
         return new UserResource($user);
     }
 
+    public function resetPassword(User $user)
+    {
+        $newPassword = bin2hex(random_bytes(4));
+
+        $user->password = Hash::make($newPassword);
+        $user->save();
+
+        return $newPassword;
+    }
+
     public function delete(User $user)
     {
         $user->delete();

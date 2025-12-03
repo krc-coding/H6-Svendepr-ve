@@ -13,6 +13,7 @@ Route::middleware(['api', 'auth:sanctum'])->group(function () {
         Route::get('/', [UserController::class, 'getUsers']);
         Route::patch('/edit/{user}', [UserController::class, 'editUser']);
         Route::patch('/update_password/{user}', [UserController::class, 'updatePassword']);
+        Route::patch('/reset_password/{user}', [UserController::class, 'resetPassword']);
         Route::delete('/{user}', [UserController::class, 'delete']);
     });
 

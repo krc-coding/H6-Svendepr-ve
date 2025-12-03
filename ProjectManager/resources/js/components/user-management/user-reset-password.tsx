@@ -22,25 +22,15 @@ const UserResetPassword = (props: UserProps) => {
 
     const handleConfirm = async () => {
         try {
-            const newPassword = generateRandomString()
-            await apiManager.user.updatePassword(user.id || 0, newPassword, newPassword);
-            setNewPassword(newPassword);
+            const response = await apiManager.user.resetPassword(user.id || 0);
+            setNewPassword(response.data);
             setHasConfirmed(true);
         }
         catch (error) {
             console.error("Error: ", error);
         }
     };
-
-    const generateRandomString = (): string => {
-        const chars = "abcdefghijklmnopqrstuvwxyz0123456789";
-        let result = "";
-        for (let i = 0; i < NewPasswordLength; i++) {
-            result += chars[Math.floor(Math.random() * chars.length)];
-        }
-        return result;
-    }
-
+    
     const maskPassword = (str: string): string => {
         return "*".repeat(str.length);
     }

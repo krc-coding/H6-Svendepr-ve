@@ -78,9 +78,6 @@ Any issues discovered during development.
     - Roles has no real meaning as the handling of different roles isn't fully implemented, so currently it treats all
       users as admins.
 
-- User management
-    - Can't reset user password
-
 - Project overview:
     - Can't see user assigned to task, but can still assign to.
 
