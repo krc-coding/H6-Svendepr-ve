@@ -87,3 +87,15 @@
 ## 2025-12-01:
 
 - Discussed how to write the documentation.
+- Updated tech stack.
+- Worked on writing process report conclusion with Kasper.
+- Started writing dev setup guide.
+
+## 2025-12-02:
+
+- Finished writing dev setup guide.
+- Started writing code documentation.
+
+## 2025-12-03:
+
+- Finished writing code documentation.
