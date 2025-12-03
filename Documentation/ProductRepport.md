@@ -255,11 +255,8 @@ To stop the project, run the following command: `docker-compose down`
 All commands in the rest of the guide should be run from within the container.  
 To open a terminal within the container: `docker exec -it ProjectManager-server bash`
 
-## Setup without docker
+## Installing dependencies
 
-*Skip this section if you are not using docker.*
-
-1. Open a terminal and navigate to the `ProjectManager` folder of the code base.
 2. Install composer dependencies: `composer install`
 3. Install npm dependencies: `npm ci`
 
