@@ -380,4 +380,6 @@ Each **project** card includes:
 
 ---
 
-# Code documentation
+# Code documentation (backend)
+
+# Code documentation (Frontend)
