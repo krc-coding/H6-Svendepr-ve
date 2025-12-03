@@ -379,4 +379,428 @@ Each **project** card includes:
 
 # Code documentation (backend)
 
+## Models
+
+The following models can be found in  
+`ProjectManager\app\Models`
+
+### Enum
+
+We use a custom enum as we couldn't get the normal one to work.
+
+```php
+public const ROLE_USER = "User";
+public const ROLE_ADMIN = 'Admin';
+public const ROLE_PROJECT_MANAGER = 'Project manager';
+```
+
+Then we have a function to get them all in a array
+
+```php
+public static function getRoles(): array
+{
+    return [
+        self::ROLE_USER,
+        self::ROLE_ADMIN,
+        self::ROLE_PROJECT_MANAGER,
+    ];
+}
+```
+
+### Hidden fields
+
+In our user model we have a *$hidden*, all the field in that array are not parsed over to the resources.  
+In this case we don't want the users password to be show, even by accendent.  
+We don't use the other three, but it's the same: we don't want to share that.
+
+```php
+protected $hidden = [
+    'password',
+    'two_factor_secret',
+    'two_factor_recovery_codes',
+    'remember_token',
+];
+```
+
+### DB relations
+
+This is from Tasks model, this is telling that the task:
+- belongs to 0 or unlimited other task
+- It's a task model on the other side of this relation
+- That it's not the default `tasks_tasks` table we reference to but: `task_dependencies`
+- That the column our id need to match is `depends_on_task_id`, not the default: `tasks_id`
+- That the `task_id` is our target task that is blocking this task
+
+```php
+public function blocking(): BelongsToMany
+{
+    return $this->belongsToMany(
+        Tasks::class,
+        'task_dependencies',
+        'depends_on_task_id',
+        'task_id'
+    );
+}
+```
+
+*All models has this*
+
+This tells us that:
+- It has a id in it's own table, is a many to 1
+- It uses the defualt column name: `account_id`
+
+```php
+public function account(): BelongsTo
+{
+    return $this->belongsTo(Account::class);
+}
+```
+
+## Resources
+
+The following resources can be found in  
+`ProjectManager\app\Http\Resources`
+
+This is used to filter out data, or modify that data just before sending it out as json.
+
+### Normally
+
+This is the default, if you just want all the data from the model
+
+*This is from the user resource*
+
+```php
+public function toArray(Request $request): array
+{
+    return parent::toArray($request);
+}
+```
+
+### Modifying the data
+
+Here i assign the id, title and so on the normal way.
+
+`assigned_users` is not a normal value in the table, `assignedTo` is a function in the task model, it is a one to many.  
+The array to null if no users is assigned to this task, if so i make it a empty array.  
+the function `getTaskDependies` does the same, but also filter out some of the data, e.g. if the task has the status *complete*.
+
+*This is from the task resource*
+
+```php
+public function toArray(Request $request): array
+{
+    return [
+        'id' => $this->id,
+        'title' => $this->title,
+        'description' => $this->description,
+        'status' => $this->status,
+        'project_id' => $this->project_id,
+        'created_by' => $this->created_by,
+        'assigned_users' => $this->assignedTo?->pluck('id') ?? [],
+        'depends_on' => $this->getTaskDependies(),
+        'due_date' => $this->due_date,
+        'created_at' => $this->created_at,
+    ];
+}
+```
+
+## Controller
+
+The following controllers can be found in  
+`ProjectManager\app\Http\Controllers`
+
+### Get data with dependence
+
+This function does:
+- loads all users and task in the assignedTo and dependsOn functions.
+- Get the data to use
+- Converts them into task resource
+- Return that as a list in json
+
+*From task controller*
+
+```php
+public function getAllTasks()
+{
+    return Tasks::with(['assignedTo', 'dependsOn'])
+        ->get()
+        ->mapInto(TaskResource::class);
+}
+```
+
+### Update
+
+Request is the body of the http request.  
+Task is the task from the db, then you call this endpoint on `api/task/edit/{task}`, the task is the task id.  
+The first validation is the task id, if that doesn't exsit in the db, you get an error.  
+Now we can validate the body, this time we only validate the new status, we check if
+- If the status is in the rquest body
+- If it's in, it need to be one of the statuses in our custom enum
+
+Then we set it and save the update.
+
+```php
+public function updateStatus(Request $request, Tasks $task)
+{
+    $request->validate([
+        'status' => 'required|in:' . implode(',', Tasks::getStatuses()),
+    ]);
+
+    $task->status = $request->status;
+    $task->save();
+
+    return new TaskResource($task);
+}
+```
+
 # Code documentation (Frontend)
+
+## Generalized react features
+
+### Use state
+
+The following examples can be found in  
+`ProjectManager\resources\js\pages\dashboard.tsx`
+
+#### Make state
+
+The users is the list you read from and setUsers is the function you call to update the users list.  
+This is a IUser array, the default value is a empty list.  
+Error as you can see, a string but is also able to be null.
+
+```ts
+const [users, setUsers] = useState<IUser[]>([]);
+const [error, setError] = useState<string | null>(null);
+```
+
+#### Set new state
+
+The `setIsTaskCreateModalOpen` is a boolean and is easy to change the same with `setSelectedTask`.  
+`setTasks` is difference as it's an array, i need to make a new array to get react to detect that i have updated the list.
+
+```ts
+    const closeCreateTask = () => {
+        setIsTaskCreateModalOpen(false);
+        setSelectedTask(null);
+    }
+
+    const onCreatedNewTask = (newTask: ITask) => {
+        setTasks((prevTasks) => [...prevTasks, newTask]);
+    }
+```
+
+### Component Props
+
+The following examples can be found in  
+`ProjectManager\resources\js\pages\dashboard.tsx`  
+`ProjectManager\resources\js\pages\project-board.tsx`  
+`ProjectManager\resources\js\pages\personalized-boards.tsx`
+
+This interface is private, it's use to tell that the Dashboard wants, as shown in the second block.  
+The question mark is used to tell that this item is not need, but if it is in, it needs to be what comes after semicolon.  
+E.g. title is not pressent in `PersonalizedBoard`, but is in `ProjectBoardPage`.
+
+```ts
+interface DashboardProps {
+    title?: string;
+    projectLayout?: ProjectLayout;
+    overrideTasks?: ITask[];
+    overrideProjects?: IProject[];
+    projectViewing?: IProject;
+}
+
+export default function Dashboard(props: DashboardProps)
+```
+
+```ts
+export default function PersonalizedBoard() {
+    return <Dashboard projectLayout={personalizedLayout} />
+}
+
+export default function ProjectBoardPage() {
+    const {auth, project} = usePage<ExtendedSharedData>().props;
+
+    return <Dashboard
+        projectLayout={projectLayout}
+        projectViewing={project}
+        overrideTasks={project.tasks}
+        title={`Project Board: ${project.name}`}
+    />
+}
+```
+
+## API calls
+
+The backend hosts an AJAX API, which is used to get all the tasks and projects.  
+To make it easier to use in the code base, we created an api manager object, which handles making the requests.
+
+The way it's structured is like this:
+
+```ts
+export const apiManager = {
+    "user": {
+        "create": (user: IUser) => {
+            return axios.post('/api/user/create', user);
+        },
+        "get": (userId: number) => {
+            return axios.get('/api/user/' + userId);
+        },
+        "getAll": () => {
+            return axios.get('/api/user');
+        },
+        "getAllProjectManagers": () => {
+            return axios.get('/api/user/project_managers');
+        },
+        "update": (userId: number, user: IUser) => {
+            return axios.patch('/api/user/edit/' + userId, user);
+        },
+        "updatePassword": (userId: number, current_password: string, password: string, passwordConfirmed: string) => {
+            return axios.patch('/api/user/update_password/' + userId, {
+                "current_password": current_password,
+                "password": password,
+                "password_confirmation": passwordConfirmed
+            })
+        },
+        "delete": (userId: number) => {
+            return axios.delete('/api/user/' + userId);
+        }
+    },
+    "task": {
+        "create": (task: ITask) => {
+            return axios.post('/api/task/create', task);
+        },
+        "get": (taskId: number) => {
+            return axios.get('/api/task/' + taskId);
+        },
+        "getAll": () => {
+            return axios.get('/api/task');
+        },
+        "update": (taskId: number, task: ITask) => {
+            return axios.patch('/api/task/edit/' + taskId, task);
+        },
+        "updateStatus": (taskId: number, status: string) => {
+            return axios.patch('/api/task/update_status/' + taskId, {"status": status});
+        },
+        "delete": (taskId: number) => {
+            return axios.delete('/api/task/' + taskId);
+        }
+    },
+    "project": {
+        "create": (project: IProject) => {
+            return axios.post('/api/project/create', project);
+        },
+        "get": (projectId: number) => {
+            return axios.get('/api/project/' + projectId);
+        },
+        "getAll": () => {
+            return axios.get('/api/project');
+        },
+        "update": (projectId: number, project: IProject) => {
+            return axios.put('/api/project/edit/' + projectId, project);
+        },
+        "updateStatus": (projectId: number, status: string) => {
+            return axios.patch('/api/project/update_status/' + projectId, {"status": status});
+        },
+        "delete": (projectId: number) => {
+            return axios.delete('/api/project/' + projectId);
+        }
+    }
+}
+```
+
+This approach makes it easy to use, as you only need to import the api-manager object, and then call the method you want
+to use, say you want to get a specific project, you would do this: `apiManager.project.get(projectId)`.
+
+## Top level pages
+
+The top level pages are the first files loaded when a user navigates to a specific page.  
+They are located in `RoomBookingApp/src/pages/`.
+
+Each of these pages is loaded using laravel Inertia, which allows parsing backend data into React components, like the current authenticated user.
+
+Inertia also provides many useful components for building forms.
+But the most useful feature of Inertia is the connection between a laravel backend and a React frontend
+
+## Task loading
+
+When a user opens any of the project boards then, we need to load all related tasks and projects.
+We've created this function for loading tasks and a similar one for loading projects.
+```ts
+const fetchTasks = async () => {
+    if (!layout.showTasks) return;
+
+    var tasks;
+    if (overrideTasks != null) {
+        tasks = overrideTasks;
+    }
+    else {
+        const tasksResponse = await apiManager.task.getAll();
+        tasks = tasksResponse.data;
+    }
+
+    // Filter out any tasks with invalid statuses
+    const validTasks = tasks.filter((task: ITask) => {
+        let shouldShow = false;
+
+        if (layout.showOnlyCreatedByMe && task.created_by == auth.user.id) {
+            shouldShow = true;
+        } else if (!layout.showOnlyCreatedByMe) {
+            shouldShow = true;
+        } else if (layout.showOnlyAssignedToMe && task.assigned_users.includes(auth.user.id)) {
+            shouldShow = true;
+        } else if (!layout.showOnlyAssignedToMe) {
+            shouldShow = true;
+        }
+
+        if (!shouldShow) return false;
+        shouldShow = Object.values(TASK_STATUS).includes(task.status as any);
+        return shouldShow;
+    });
+
+    setTasks(validTasks);
+};
+```
+
+The way it works is by first checking if the board is configured to show tasks, and if it isn't, then we do an early return.  
+After that, we check if the props passed to the component contain any tasks, if it does then we use that, otherwise we make a request to the backend to get all tasks.
+After that, we filter out any tasks that don't have a valid status, based on the current layout settings.
+
+Once we have all the tasks, we then filter the tasks based on the current layout settings, and task status.
+
+## Project board structure
+
+Project boards are split into multiple jsx components, as it makes it easier to separate the concerns of each feature.
+
+The dashboard component is the main component for all project boards, it handles loading all the necessary data (tasks, projects and users) and loads the necessary children.
+
+The primary components that makes up project boards are:
+```xml
+<Dashboard>
+    <BaseProject>
+        <Column>
+            <ProjectItem />
+            <TaskItem />
+        </Column>
+    </BaseProject>
+</Dashboard>
+```
+*Each of these components are located in `ProjectManager/resources/js/components/project/` except the dashboard component, which is located in `ProjectManager/resources/js/pages/`*
+
+The personalized board and specific project board, both wrap the dashboard component.
+
+## Custom layout feature
+
+We've designed a setup in which it's possible to customize the layout of the project boards.  
+Currently, we only have three predefined layouts, but it was intended that the addon system would be allowed to add more layouts.
+
+All layouts needs to follow a specific structure, which is described in the `Layout` interface.
+```ts
+export interface ProjectLayout {
+    columns: string[];
+    showTasks: boolean;
+    showProjects: boolean;
+    showOnlyAssignedToMe: boolean;
+    showOnlyCreatedByMe: boolean;
+    filter: string[];
+}
+```
