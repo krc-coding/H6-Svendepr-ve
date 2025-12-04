@@ -207,11 +207,13 @@ erDiagram
 
 ## Requirements
 
+- Git
 - Docker
 - Docker Compose
 
 or
 
+- Git
 - php 8.3.x NTS (Not Thread Safe)
 - Composer
 - MySql
@@ -230,13 +232,13 @@ Cloning is recommended if you want to contribute to the project, or if you want 
 
 To clone the repository use one of the following methods:
 1. using git over https: `git clone https://github.com/krc-coding/H6-Svendepr-ve.git`
-2. using git over ssh: `git ssh git@github.com:krc-coding/H6-Svendepr-ve.git`
+2. using git over ssh: `git clone git@github.com:krc-coding/H6-Svendepr-ve.git`
 
 If you don't want to use git, then you can download the zip file from the repository page.
 
 ## Before you start
 
-Make a copy of the `.env.example` file and rename it to `.env`.  
+Make a copy of the `.env.example` file and rename it to `.env`, the file is located in the ProjectManager folder.  
 Update the database related settings in the `.env` file, and make sure that the database exists.  
 If you're using docker, then the database will be created automatically, based on the settings in the `.env` file.
 
@@ -249,16 +251,20 @@ Once you have the code base locally, open a terminal and navigate to the `Projec
 When setting up the project the first time, it'll take some extra time as it has to download all the required resources.  
 But after that it'll be much faster to start.
 
-To start the project, run the following command: `docker-compose up -d`  
-To stop the project, run the following command: `docker-compose down`
+To start the project, run the following command: `docker compose up -d`  
+To stop the project, run the following command: `docker compose down`
 
 All commands in the rest of the guide should be run from within the container.  
 To open a terminal within the container: `docker exec -it ProjectManager-server bash`
 
 ## Installing dependencies
 
-2. Install composer dependencies: `composer install`
-3. Install npm dependencies: `npm ci`
+1. Install composer dependencies: `composer install`
+2. Install npm dependencies: `npm ci`
+
+If you've installed the dependencies through docker, then you also need to update the user and group of the installed files.  
+To do this, run the following command: `chown -R www-user:www-user vendor node_modules`
+
 
 ## Setting up the backend
 
